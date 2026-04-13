@@ -2,77 +2,94 @@
 
 ## Contexto del crédito
 
-Somos un equipo de tres personas. Cada uno tenemos una cuenta AWS Educate Starter con 50 dólares de crédito, lo que suma 150 dólares en total. Sin embargo, no podemos juntar ese dinero en una sola cuenta; tenemos que repartir los recursos entre las tres cuentas para que ninguna se quede sin crédito antes de terminar el proyecto. Esta limitación nos ha obligado a planificar con cuidado, pero también nos ha enseñado a gestionar costes en la nube.
+El equipo está formado por tres personas. Cada cuenta AWS Educate Starter incluye 50 USD de crédito, lo que suma 150 USD en total. Como ese saldo no puede agruparse en una sola cuenta, hemos tenido que repartir los recursos entre las tres y planificar el despliegue con cuidado para que ninguna se agote antes de finalizar el proyecto. Esta limitación, además de condicionar la arquitectura, nos ha servido para trabajar con una visión más realista del control de costes en la nube.
 
 ## Región
 
-Las cuentas AWS Educate Starter solo permiten usar la región us-east-1 (Norte de Virginia). No podemos elegir otra. Aunque inicialmente nos hubiera gustado desplegar en una región con energías 100% renovables, asumimos esta limitación. Según los informes de AWS, todas sus regiones de EE. UU. funcionan con un mix energético superior al 90% renovable, así que el impacto ambiental no es despreciable. Si el proyecto pasara a producción con una cuenta de pago normal, entonces valoraríamos migrar a us-west-2 o eu-west-3.
+Las cuentas AWS Educate Starter solo permiten operar en `us-east-1` (Norte de Virginia), por lo que no ha sido posible elegir otra región. Aunque en un escenario ideal habríamos valorado una región con mejor encaje en sostenibilidad o latencia, en este caso hemos asumido la restricción propia del entorno académico. Si el proyecto evolucionara a una cuenta de producción, estudiaríamos una migración a regiones como `us-west-2` o `eu-west-3`, en función de criterios de coste, rendimiento y sostenibilidad.
 
 ## Arquitectura de nodos
 
-Hemos decidido que la base de datos tendrá su propio nodo dedicado, separado del nodo donde corran el resto de servicios. Las razones son claras:
+Se ha decidido separar la base de datos en un nodo dedicado, independiente del resto de servicios. Esta decisión responde a varios motivos:
 
-- **Rendimiento**: una base de datos necesita mucha memoria y E/S. Si comparte nodo con otros procesos, habrá contención.
-- **Seguridad**: al aislarla, podemos aplicar reglas de red muy estrictas.
-- **Escalabilidad**: si la base de datos necesita más recursos, podemos cambiar su instancia sin afectar al resto.
-- **Tolerancia a fallos**: si el nodo general se cae, la base de datos sigue operativa, y viceversa.
+- **Rendimiento**: la base de datos tiene un perfil de consumo más sensible a memoria y operaciones de E/S que el resto de componentes.
+- **Seguridad**: el aislamiento permite aplicar reglas de acceso más estrictas y reducir la superficie de exposición.
+- **Escalabilidad**: si en algún momento la base de datos necesita más recursos, se podrá redimensionar su nodo sin afectar al resto del clúster.
+- **Estabilidad**: separar los servicios reduce la contención de recursos y facilita el diagnóstico de incidencias.
 
-Por tanto, nuestra arquitectura tiene tres nodos:
+La arquitectura prevista queda distribuida en tres nodos:
 
-1. **Nodo master**: ejecuta el plano de control del orquestador (etcd, API, scheduler, etc.).
-2. **Nodo worker general**: ejecuta los servicios de aplicación (API, interfaz web, monitorización, etc.).
-3. **Nodo worker de base de datos**: ejecuta exclusivamente el motor de base de datos.
+1. **Nodo master**: aloja el plano de control del clúster.
+2. **Nodo worker general**: ejecuta los servicios de aplicación, frontend, monitorización y componentes auxiliares.
+3. **Nodo worker de base de datos**: dedicado exclusivamente al motor de base de datos.
 
 ## Selección de instancias
 
-Hemos analizado los precios de us-east-1 (abril de 2026) a partir de la información que nos proporciona la propia AWS. Para nuestro proyecto, utilizaremos instancias de la familia **t3**, que son las que tenemos disponibles en la cuenta educativa y ofrecen un buen equilibrio entre precio y rendimiento. Los precios que aparecen en la imagen son para Linux base, que es el sistema operativo que usaremos (Ubuntu). A continuación, la tabla con los tipos elegidos:
+Para este proyecto se ha optado por instancias de la familia **t3**, disponibles en las cuentas educativas y equilibradas para un entorno de desarrollo. La elección se ha hecho teniendo en cuenta el presupuesto, la carga prevista y la necesidad de mantener una arquitectura funcional sin sobredimensionar recursos.
 
-| Rol | Tipo de instancia | vCPU | RAM | Coste por hora (USD) | Justificación |
-|-----|------------------|------|-----|----------------------|----------------|
-| **Master** | t3.small | 2 | 2 GB | 0,0208 | El plano de control es ligero. Con 2 GB de RAM y 2 vCPUs va sobrado. Descartamos t3.micro (1 GB) porque el almacenamiento clave (etcd) puede consumir más memoria de la cuenta. |
-| **Worker de base de datos** | t3.small | 2 | 2 GB | 0,0208 | La base de datos necesita al menos 2 GB para sus buffers internos y conexiones. Realmente podría funcionar con una t3.small aunque lo recomendado sería una medium, como no haremos muchas operaciones para evitar futuros problemas con el saldo de la máquina nos mantendremos con lo justo. |
-| **Worker general** | t3.medium | 2 | 4 GB | 0,0416 | Aquí correrán varios servicios (API, frontend, monitorización, etc.). Hemos estimado que 2 GB son suficientes para la fase de desarrollo. Si más adelante vemos que se queda corto, siempre podemos cambiar a t3.medium (4 GB). |
+| Rol | Instancia | vCPU | RAM | Coste/hora (USD) | Justificación |
+|---|---|---:|---:|---:|---|
+| **Master** | `t3.small` | 2 | 2 GB | 0,0208 | Suficiente para el plano de control del clúster en un entorno académico. |
+| **Worker general** | `t3.small` | 2 | 2 GB | 0,0208 | Adecuado para ejecutar los servicios principales durante la fase de desarrollo. |
+| **Worker BBDD** | `t3.small` | 2 | 2 GB | 0,0208 | Permite mantener la base de datos aislada con recursos suficientes para el alcance actual del proyecto. |
 
-*Nota: el precio de t3.medium no aparece en la imagen, pero según la documentación de AWS, en us-east-1 cuesta 0,0416 USD/h (el doble que t3.small). Lo hemos confirmado en la calculadora de precios.*
+> En un entorno de producción o con una carga más alta, sería razonable valorar instancias superiores, especialmente para el nodo de base de datos y el worker general.
 
-## Almacenamiento (discos EBS)
+## Almacenamiento (EBS)
 
-Todos los discos serán de tipo **gp3**, que ofrecen un rendimiento base de 3000 IOPS y 125 MB/s. No necesitamos más por ahora.
+Todos los volúmenes se plantean sobre discos **gp3**, ya que ofrecen un equilibrio adecuado entre coste y rendimiento para este proyecto.
 
-- **Cada nodo** tiene un disco raíz de 20 GB. Espacio suficiente para el sistema operativo, el runtime de contenedores, las imágenes y los logs.
-- **El nodo de base de datos** tiene además un volumen adicional de 10 GB para los datos persistentes. Este volumen se montará como un PersistentVolumeClaim.
+- Cada nodo contará con un disco raíz de **20 GB**, suficiente para sistema operativo, dependencias, contenedores y logs.
+- El nodo de base de datos tendrá además un volumen adicional de **10 GB** para almacenar los datos persistentes.
 
-| Recurso | Tamaño | Precio por GB-mes | Coste mensual |
-|----------|--------|-------------------|---------------|
+| Recurso | Tamaño | Precio por GB-mes | Coste mensual estimado |
+|---|---:|---:|---:|
 | Disco raíz master | 20 GB | 0,08 USD | 1,60 USD |
 | Disco raíz worker general | 20 GB | 0,08 USD | 1,60 USD |
 | Disco raíz worker BBDD | 20 GB | 0,08 USD | 1,60 USD |
-| **Total EBS** | | | **4,80 USD** |
+| Volumen adicional BBDD | 10 GB | 0,08 USD | 0,80 USD |
+| **Total EBS** |  |  | **5,60 USD/mes** |
 
-## Redes y seguridad
+El volumen adicional de base de datos se montará como almacenamiento persistente para asegurar la conservación de la información aunque el contenedor se reinicie o se reprograme.
 
-- **VPC**: Una sola con rango 10.0.0.0/16.
-- **Subred pública**: 10.0.1.0/24. Para el balanceador de entrada (Ingress) y para acceso SSH a los nodos.
-- **Subred privada**: 10.0.2.0/24. Para los workers (general y base de datos). No tendrán IP pública directamente.
-- **Internet Gateway**: Asociado a la subred pública.
-- **Security groups**:
-  - **Grupo público**: permite HTTP (80), HTTPS (443) desde cualquier origen, y SSH (22) solo desde las IPs de nuestro equipo. Las ips elásticas requerirán un sobre coste mínimo.
-  - **Grupo privado**: permite todo el tráfico interno entre los nodos del clúster y el acceso a la base de datos (puerto específico) solo desde el worker general.
+## Red y seguridad
+
+La red se ha planteado con una estructura sencilla, pero suficiente para separar servicios públicos e internos:
+
+- **VPC**: `10.0.0.0/16`
+- **Subred pública**: `10.0.1.0/24`, destinada a entrada de tráfico y acceso administrativo controlado.
+- **Subred privada**: `10.0.2.0/24`, destinada a los nodos internos del clúster.
+- **Internet Gateway**: asociado a la parte pública de la arquitectura.
+- **Security Groups**:
+  - **Grupo público**: permite HTTP (`80`) y HTTPS (`443`) desde cualquier origen, y SSH (`22`) solo desde las IP autorizadas del equipo.
+  - **Grupo privado**: restringe el tráfico a las comunicaciones internas del clúster y al acceso controlado a la base de datos.
+
+Este planteamiento no busca una arquitectura excesivamente compleja, sino una base clara, segura y coherente con el alcance del proyecto.
 
 ## Backups
 
-Para las copias de seguridad del clúster y de las bases de datos usaremos un **bucket S3 con versionado**. El coste del almacenamiento S3 Standard es de 0,023 USD por GB-mes. Con 5 GB iniciales, el coste es insignificante (unos 0,12 USD al mes). Este bucket lo asignamos a una de las cuentas.
+Para las copias de seguridad se utilizará un **bucket S3 con versionado activado**. Esta decisión permite conservar versiones anteriores de ficheros y facilita la recuperación ante borrados accidentales o errores de configuración.
 
-## Planes de futuro (cuenta de pago normal)
+Con un volumen inicial pequeño, el coste mensual del almacenamiento en S3 es muy bajo, por lo que encaja bien en un proyecto con presupuesto ajustado. Además, centralizar los backups en S3 simplifica la estrategia de recuperación y deja preparada una base razonable para fases posteriores.
 
-Si el proyecto pasara a producción con una cuenta de pago normal, haríamos lo siguiente:
+## Estimación general de costes
 
-- **Cambio de región**: migraríamos a us-west-2 (Oregón) o eu-west-3 (París) para mejorar la sostenibilidad y la latencia.
-- **Instancias más potentes**: si la carga aumenta, pasaríamos a t3.medium o incluso a instancias de la familia c5 (más CPU).
-- **Base de datos gestionada**: en lugar de mantener la base de datos en un nodo propio, usaríamos un servicio como RDS, que nos da backups automáticos y alta disponibilidad.
-- **Ahorro de costes**: contrataríamos Savings Plans para los nodos que funcionan 24/7, y usaríamos instancias spot para tareas no críticas.
-- **Escalado automático**: añadiríamos un Auto Scaling Group para los workers generales, de modo que se puedan añadir o quitar nodos según la demanda.
+A nivel orientativo, el coste mensual del despliegue completo se reparte entre computación, almacenamiento y backups. Mantener tres instancias activas de forma continua incrementaría el gasto rápidamente, por lo que la estrategia realista en este contexto pasa por **encender los recursos solo durante las horas de trabajo** y apagarlos cuando no se utilicen.
 
-## Reflexión final
+De este modo, el proyecto sigue siendo viable dentro del crédito disponible y, al mismo tiempo, permite trabajar con una arquitectura suficientemente seria como para justificar decisiones reales de diseño.
 
-Hemos tenido que hacer malabares con los precios reales de las instancias t3 para ajustarnos al presupuesto de 50 USD por cuenta. Al final, repartiendo los nodos entre dos cuentas y usando una t3.micro para el worker general, hemos conseguido una arquitectura viable que mantiene la base de datos dedicada. Aprender a gestionar estas limitaciones es parte del valor formativo del proyecto.
+## Proyección futura
+
+Si el proyecto se llevara más allá del entorno académico, se contemplarían varias mejoras:
+
+- Migración a una región más adecuada en coste, latencia o sostenibilidad.
+- Redimensionado de instancias en función de métricas reales de consumo.
+- Sustitución de la base de datos autogestionada por un servicio administrado como **Amazon RDS**.
+- Aplicación de mecanismos de ahorro como **Savings Plans** o instancias reservadas.
+- Incorporación de escalado automático en los nodos de aplicación.
+
+## Conclusión
+
+La arquitectura elegida busca un equilibrio entre funcionalidad, coste y realismo. No se ha diseñado para maximizar potencia, sino para ajustarse a las limitaciones de AWS Educate sin renunciar a una separación lógica de servicios, un mínimo de seguridad de red y una base técnica suficientemente sólida para el desarrollo del proyecto.
+
+Más allá de la parte técnica, esta planificación también refleja uno de los aprendizajes más importantes del proyecto: en la nube no solo importa qué se puede desplegar, sino también qué se puede mantener de forma sostenible dentro del presupuesto disponible.
