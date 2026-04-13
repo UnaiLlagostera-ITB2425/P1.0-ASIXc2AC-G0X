@@ -60,9 +60,11 @@ El backlog del sprint 1 queda así:
 - Script SQL de inicialización (esquema base)
 - Desplegar phpMyAdmin (acceso restringido por IP)
 
-**📸 Captura de pantalla – Tablero de tareas del Sprint 1**
+**Captura de pantalla – Tablero de tareas del Sprint 1**
 
-![Tablero de tareas del Sprint 1](../../media/capturas/sprint_planning_1.png)
+<div align="center">
+  <img src="../../media/capturas/sprint_planning_1.png" alt="Tablero de tareas del Sprint 1" />
+</div>
 
 ---
 
