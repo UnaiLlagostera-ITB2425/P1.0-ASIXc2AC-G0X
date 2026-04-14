@@ -125,3 +125,29 @@ Si el proyecto se llevara más allá del entorno académico, se contemplarían v
 La arquitectura elegida busca un equilibrio entre funcionalidad, coste y realismo. No se ha diseñado para maximizar potencia, sino para ajustarse a las limitaciones de AWS Educate sin renunciar a una separación lógica de servicios, un mínimo de seguridad de red y una base técnica suficientemente sólida para el desarrollo del proyecto. Más allá de la parte técnica, esta planificación también refleja uno de los aprendizajes más importantes del proyecto: en la nube no solo importa qué se puede desplegar, sino también qué se puede mantener de forma sostenible dentro del presupuesto disponible.
 
 ***
+
+A continuación se presenta la webgrafía correspondiente al documento **Justificación de AWS y estudio de instancias**, en formato APA 7.ª edición, ordenada alfabéticamente por organización/autor.
+
+***
+
+## Webgrafía
+
+- Amazon Web Services. (2026, 8 de abril). *Amazon EC2 T3 instances*. Amazon Web Services. https://aws.amazon.com/ec2/instance-types/t3/ [aws.amazon](https://aws.amazon.com/ec2/instance-types/t3/)
+
+- Amazon Web Services. (2026, 8 de abril). *EC2 On-Demand instance pricing*. Amazon Web Services. https://aws.amazon.com/ec2/pricing/on-demand/ [aws.amazon](https://aws.amazon.com/ec2/pricing/on-demand/)
+
+- Amazon Web Services. (2026, 8 de abril). *Precios de las instancias bajo demanda de Amazon EC2*. Amazon Web Services. https://aws.amazon.com/es/ec2/pricing/on-demand/ [aws.amazon](https://aws.amazon.com/es/ec2/pricing/on-demand/)
+
+- AWS Pricing. (s.f.). *Amazon EC2 instance type t3.small*. AWS Pricing. https://aws-pricing.com/t3.small.html [aws-pricing](https://aws-pricing.com/t3.small.html)
+
+- CloudBurn. (2026, 16 de marzo). *Amazon EBS pricing: Why deleted EC2 doesn't stop your bill*. CloudBurn Blog. https://cloudburn.io/blog/amazon-ebs-pricing [cloudburn](https://cloudburn.io/blog/amazon-ebs-pricing)
+
+- CloudChipr. (2025, 2 de febrero). *Understanding Amazon EBS pricing: A complete guide*. CloudChipr Blog. https://cloudchipr.com/blog/aws-ebs-pricing [cloudchipr](https://cloudchipr.com/blog/aws-ebs-pricing)
+
+- CloudExMachina. (2025, 24 de abril). *Cracking the AWS EBS pricing code: Storage cost optimization for cloud engineers*. CloudExMachina Blog. https://www.cloudexmachina.io/blog/ebs-pricing [cloudexmachina](https://www.cloudexmachina.io/blog/ebs-pricing)
+
+- Economize Cloud. (s.f.). *Compare AWS EC2 T3 instance pricing*. Economize Cloud Resources. https://www.economize.cloud/resources/aws/pricing/ec2/family/t3/ [economize](https://www.economize.cloud/resources/aws/pricing/ec2/family/t3/)
+
+- GeeksforGeeks. (2024, 23 de septiembre). *Types of EBS volume*. GeeksforGeeks — Cloud Computing. https://www.geeksforgeeks.org/cloud-computing/aws-ebs-pricing/ [geeksforgeeks](https://www.geeksforgeeks.org/cloud-computing/aws-ebs-pricing/)
+
+- Vantage. (s.f.). *t3.small pricing and specs*. Vantage Instances. https://instances.vantage.sh/aws/ec2/t3.small [instances.vantage](https://instances.vantage.sh/aws/ec2/t3.small)
