@@ -63,7 +63,7 @@ El backlog del sprint 1 queda así:
 **Captura de pantalla – Tablero de tareas del Sprint 1**
 
 <div align="center">
-  <img src="../../media/capturas/sprint_planning_1.png" alt="Tablero de tareas del Sprint 1" />
+  <img src="../../media/sprint_planning_1.png" alt="Tablero de tareas del Sprint 1" />
 </div>
 
 ---
