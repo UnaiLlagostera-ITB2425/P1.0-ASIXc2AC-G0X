@@ -22,6 +22,19 @@ Lanzamiento de la instancia EC2 destinada a alojar MariaDB directamente en el si
 | Volumen raíz   | EBS gp3, 20 GB                                            |
 | Volumen datos  | EBS gp3, 10 GB → pendiente montar en /var/lib/mysql       |
 
+## Implementación
+- Nombre de instancia:
+![Nombre de la instancia (creacion)](../../media/creacion_instanciaBD1.png)
+- AMI de instancia:
+![Imagen de la instancia](../../media/creacion_instanciaBD2.png)
+- Tip de instancia y claves:
+![Tipo de instancia y claves de inicio de sesion](../../media/creacion_instanciaBD3.png)
+- Configuración de red de la instancia:
+![Configuracion de la red](../../media/creacion_instanciaBD4.png)
+- Configuración de almacenamiento d ela instancia:
+![Configuracion de almacenamiento](../../media/creacion_instanciaBD5.png)
+- Confirmación de que ha funcionado:
+![Imagen que muestra que se creo correctamente](../../media/creacion_instanciaBD6.png)
 ## Estado
 - Instancia lanzada y en estado running
 - Volumen EBS adicional montado en /var/lib/mysql
