@@ -12,7 +12,9 @@ La infraestructura se distribuye en tres cuentas AWS Educate independientes. Cad
 
 ***
 
-> **CAPTURA SUGERIDA:** Diagrama de red completo mostrando las tres cuentas con sus VPCs, subredes, instancias EC2 y las tres conexiones de peering entre Erick, Unai y Manuel.
+<div align="center">
+  <img src="../../media/Diagrama VPC (V1.0.0).jpg" alt="Diagrama de estructura de VPC" />
+</div>
 
 ***
 
@@ -206,7 +208,10 @@ chmod 400 keypair-proyecto-k8s.pem
 
 ***
 
-> **CAPTURA SUGERIDA:** Panel de instancias de Erick mostrando `EC2-Master` en estado `running` con IP pública asignada, tipo `t3.small` y subred `subnet-publica-frontend`.
+<div align="center">
+  <img src="../../media/instancia_master_up.png" alt="Diagrama de estructura de VPC" />
+</div>
+
 
 ***
 
@@ -269,56 +274,6 @@ Asociar `subnet-privada-B`.
 | Custom TCP | TCP | `10250` | `10.0.0.0/16` | Órdenes API Server desde Master de Erick |
 | Custom TCP | TCP | `30000-32767` | `10.0.0.0/16` | Rango NodePort Kubernetes |
 | SSH | TCP | `22` | `10.0.0.0/16` | Acceso SSH desde Master de Erick |
-
-***
-
-> **CAPTURA SUGERIDA:** Inbound rules de `SG-Workers-Private-B` mostrando que todos los orígenes apuntan al CIDR `10.0.0.0/16` de Erick, sin ninguna regla con origen `0.0.0.0/0`.
-
-***
-
-### 4.5 Key Pair
-
-| Campo | Valor |
-|---|---|
-| Name | `keypair-proyecto-k8s-B` |
-| Key pair type | RSA |
-| Private key file format | `.pem` |
-
-```bash
-chmod 400 keypair-proyecto-k8s-B.pem
-```
-
-### 4.6 Lanzar EC2 Worker
-
-| Campo | Valor |
-|---|---|
-| Name | `EC2-Worker` |
-| AMI | Ubuntu Server 22.04 LTS — x86_64 |
-| Instance type | `t3.medium` |
-| Key pair | `keypair-proyecto-k8s-B` |
-| Subnet | `subnet-privada-B` |
-| Auto-assign public IP | Disable |
-| Security group | `SG-Workers-Private-B` |
-| Storage (raíz) | 20 GiB — gp3 |
-
-### 4.7 Lanzar EC2 Worker 2
-
-Configuración idéntica al EC2 Worker:
-
-| Campo | Valor |
-|---|---|
-| Name | `EC2-Worker-2` |
-| AMI | Ubuntu Server 22.04 LTS — x86_64 |
-| Instance type | `t3.medium` |
-| Key pair | `keypair-proyecto-k8s-B` |
-| Subnet | `subnet-privada-B` |
-| Auto-assign public IP | Disable |
-| Security group | `SG-Workers-Private-B` |
-| Storage (raíz) | 20 GiB — gp3 |
-
-***
-
-> **CAPTURA SUGERIDA:** Panel de instancias de Unai mostrando `EC2-Worker` y `EC2-Worker-2` ambos en estado `running` con IPs privadas en el rango `10.1.2.x` y sin IP pública asignada.
 
 ***
 
@@ -392,20 +347,6 @@ Sin ruta `0.0.0.0/0`. Asociar `subnet-privada-C`.
 
 ### 5.5 Security Groups
 
-#### SG-Bastion-C
-
-| Campo | Valor |
-|---|---|
-| Security group name | `SG-Bastion-C` |
-| Description | `Reglas para el Bastion Host de Manuel` |
-| VPC | `vpc-proyecto-k8s-C` |
-
-**Inbound rules:**
-
-| Type | Protocol | Port | Source | Descripción |
-|---|---|---|---|---|
-| SSH | TCP | `22` | `<IP-Manuel>/32` | SSH desde máquina local de Manuel |
-
 #### SG-DDBB-Private-C
 
 | Campo | Valor |
@@ -421,149 +362,6 @@ Sin ruta `0.0.0.0/0`. Asociar `subnet-privada-C`.
 | MySQL/Aurora | TCP | `3306` | `10.1.0.0/16` | Consultas SQL desde Workers de Unai |
 | SSH | TCP | `22` | `10.2.1.0/24` | SSH desde el Bastion de Manuel |
 | SSH | TCP | `22` | `10.0.0.0/16` | SSH desde Master de Erick |
-
-***
-
-> **CAPTURA SUGERIDA:** Inbound rules de `SG-DDBB-Private-C` mostrando que el puerto 3306 solo acepta tráfico desde `10.1.0.0/16` (Unai) y el puerto 22 solo desde la subred del Bastion y desde la VPC de Erick, sin ninguna regla con origen `0.0.0.0/0`.
-
-***
-
-### 5.6 Key Pair
-
-| Campo | Valor |
-|---|---|
-| Name | `keypair-proyecto-k8s-C` |
-| Key pair type | RSA |
-| Private key file format | `.pem` |
-
-```bash
-chmod 400 keypair-proyecto-k8s-C.pem
-```
-
-### 5.7 Lanzar EC2 Bastion
-
-| Campo | Valor |
-|---|---|
-| Name | `EC2-Bastion` |
-| AMI | Ubuntu Server 22.04 LTS — x86_64 |
-| Instance type | `t3.micro` |
-| Key pair | `keypair-proyecto-k8s-C` |
-| Subnet | `subnet-publica-C` |
-| Auto-assign public IP | Enable |
-| Security group | `SG-Bastion-C` |
-| Storage (raíz) | 8 GiB — gp3 |
-
-> El EC2 Bastion debe apagarse (`Stop`) desde la consola cuando Manuel no esté realizando tareas administrativas. Solo genera coste de computo cuando está en estado `running`.
-
-### 5.8 Lanzar EC2 DDBB
-
-| Campo | Valor |
-|---|---|
-| Name | `EC2-DDBB` |
-| AMI | Ubuntu Server 22.04 LTS — x86_64 |
-| Instance type | `t3.small` |
-| Key pair | `keypair-proyecto-k8s-C` |
-| Subnet | `subnet-privada-C` |
-| Auto-assign public IP | Disable |
-| Security group | `SG-DDBB-Private-C` |
-| Storage (raíz) | 20 GiB — gp3 |
-
-**Agregar volumen adicional para MySQL:**
-
-Hacer clic en **Add new volume:**
-
-| Campo | Valor |
-|---|---|
-| Size | 10 GiB |
-| Volume type | gp3 |
-| Device name | `/dev/sdb` |
-| Delete on termination | Yes |
-
-***
-
-> **CAPTURA SUGERIDA:** Panel de instancias de Manuel mostrando `EC2-Bastion` con IP pública en `subnet-publica-C` y `EC2-DDBB` sin IP pública en `subnet-privada-C`.
-
-***
-
-### 5.9 Montar volumen adicional en EC2 DDBB
-
-Acceder al EC2 DDBB a través del Bastion (ver sección 8) y ejecutar:
-
-```bash
-# Verificar que el volumen está disponible
-lsblk
-
-# Formatear en ext4
-sudo mkfs -t ext4 /dev/xvdb
-
-# Crear punto de montaje
-sudo mkdir -p /data/mysql
-
-# Montar el volumen
-sudo mount /dev/xvdb /data/mysql
-
-# Obtener UUID para montaje persistente
-sudo blkid /dev/xvdb
-```
-
-Editar `/etc/fstab`:
-
-```bash
-sudo nano /etc/fstab
-```
-
-Agregar al final:
-
-```
-UUID=<UUID-obtenido>   /data/mysql   ext4   defaults,nofail   0   2
-```
-
-Verificar:
-
-```bash
-sudo mount -a && df -h /data/mysql
-```
-
-### 5.10 Instalación de MySQL con NAT Gateway temporal
-
-Para que el EC2 DDBB pueda ejecutar `apt-get` sin IP pública, se crea un NAT Gateway temporal, se instala MySQL y se elimina inmediatamente.
-
-**Crear NAT Gateway:**
-
-**Ruta:** `VPC → NAT Gateways → Create NAT gateway`
-
-| Campo | Valor |
-|---|---|
-| Name | `nat-temporal-C` |
-| Subnet | `subnet-publica-C` |
-| Connectivity type | Public |
-| Elastic IP | Allocate Elastic IP |
-
-**Agregar ruta temporal en `rtb-privada-C`:**
-
-| Destination | Target |
-|---|---|
-| `0.0.0.0/0` | `nat-temporal-C` |
-
-**Instalar MySQL desde el EC2 DDBB:**
-
-```bash
-sudo apt-get update
-sudo apt-get install -y mysql-server
-sudo systemctl enable mysql
-```
-
-**Eliminar el NAT Gateway inmediatamente:**
-
-`VPC → NAT Gateways → nat-temporal-C → Actions → Delete NAT gateway`
-
-**Eliminar la ruta temporal de `rtb-privada-C`:**
-
-Borrar la entrada `0.0.0.0/0` que apunta al NAT Gateway.
-
-**Liberar la Elastic IP:**
-
-`VPC → Elastic IPs → seleccionar la IP → Actions → Release Elastic IP address`
 
 ***
 
@@ -657,8 +455,6 @@ Una vez los tres peerings están en estado `Active`, completar las rutas pendien
 
 ***
 
-> **CAPTURA SUGERIDA:** Route Table `rtb-privada-B` de Unai mostrando las tres rutas: `10.1.0.0/16 local`, `10.0.0.0/16` al pcx-Erick-a-Unai y `10.2.0.0/16` al pcx-Unai-a-Manuel.
-
 ***
 
 ## 7. Verificación de Conectividad
@@ -695,18 +491,6 @@ ping -c 4 10.0.1.X
 # Alcance a Workers de Unai
 ping -c 4 10.1.2.X
 ```
-
-Respuesta esperada en todos los casos:
-
-```
-64 bytes from 10.X.X.X: icmp_seq=1 ttl=64 time=X.XX ms
-```
-
-Si algún ping devuelve `Request timeout`, revisar las rutas de peering en la sección 6.4 y los Security Groups del nodo destino.
-
-***
-
-> **CAPTURA SUGERIDA:** Terminal del Master de Erick mostrando los pings exitosos hacia las IPs privadas de los Workers de Unai y el DDBB de Manuel.
 
 ***
 
@@ -760,40 +544,5 @@ ssh -A -i keypair-proyecto-k8s-C.pem ubuntu@<IP-PUBLICA-BASTION>
 ssh ubuntu@10.2.2.X
 
 # Al terminar, apagar el Bastion desde la consola
-# EC2 → Instances → EC2-Bastion → Instance State → Stop
-```
-
-***
-
-## Estado Final de la Infraestructura
-
-```
-AWS us-east-1
-│
-├── Cuenta A — Erick — VPC 10.0.0.0/16
-│   ├── IGW: igw-proyecto-k8s
-│   ├── subnet-publica-frontend  10.0.1.0/24 → rtb-publica  → IGW + peerings
-│   ├── subnet-privada-backend   10.0.2.0/24 → rtb-privada  → peerings
-│   ├── SG-Master-Public (443, 6443, 10250, 22)
-│   └── EC2-Master  t3.small — IP publica — 20 GB gp3
-│
-├── Cuenta B — Unai — VPC 10.1.0.0/16
-│   ├── subnet-privada-B         10.1.2.0/24 → rtb-privada-B → peerings
-│   ├── SG-Workers-Private-B (8080, 10250, 30000-32767, 22)
-│   ├── EC2-Worker    t3.medium — sin IP publica — 20 GB gp3
-│   └── EC2-Worker-2  t3.medium — sin IP publica — 20 GB gp3
-│
-├── Cuenta C — Manuel — VPC 10.2.0.0/16
-│   ├── IGW: igw-proyecto-k8s-C
-│   ├── subnet-publica-C         10.2.1.0/24 → rtb-publica-C → IGW + peerings
-│   ├── subnet-privada-C         10.2.2.0/24 → rtb-privada-C → peerings
-│   ├── SG-Bastion-C    (22 desde IP de Manuel)
-│   ├── SG-DDBB-Private-C (3306 desde 10.1.0.0/16, 22 desde Bastion y Erick)
-│   ├── EC2-Bastion  t3.micro — IP publica — 8 GB gp3 (apagado cuando no se usa)
-│   └── EC2-DDBB     t3.small — sin IP publica — 20 GB gp3 + 10 GB gp3 (/data/mysql)
-│
-└── VPC Peering
-    ├── pcx-Erick-a-Unai    Cuenta A ↔ Cuenta B  [Active]
-    ├── pcx-Erick-a-Manuel  Cuenta A ↔ Cuenta C  [Active]
-    └── pcx-Unai-a-Manuel   Cuenta B ↔ Cuenta C  [Active]
+# EC2 → Instances → Instance State → Stop
 ```
