@@ -49,3 +49,20 @@ Instalación, securización y configuración de MariaDB directamente en el siste
   FLUSH PRIVILEGES;
   ```
   ![securizacion inicial](../../media/verificacion_usuario_BD.png)
+
+
+---
+
+# Configuración avanzada aplicada
+## Montaje de volumen EBS
+Creación, adjunción y montaje de un volumen EBS gp3 dedicado de 10 GiB en la instancia ec2-ddbb, destinado exclusivamente al datadir de MariaDB (/var/lib/mysql). Esto separa los datos de la base de datos del disco raíz del sistema operativo, alineándose con la arquitectura de almacenamiento definida en el proyecto.
+
+## Decisiones aplicadas
+  - **EBS gp3 exclusivamente** — descartados Longhorn y NFS según decisión previa del proyecto.
+  - Volumen separado del disco raíz para **independencia de datos** — si la instancia se reemplaza, el volumen de datos persiste.
+  - **nofail** en **fstab** para evitar bloqueo del arranque si el volumen tarda en adjuntarse.
+  - Datos migrados con **rsync** desde el datadir original antes de remontar, sin pérdida de datos.
+
+## Pasos ejecutados
+  - Creación del volumen en AWS: Ya añadido en la creación de la instancia.
+  - 
