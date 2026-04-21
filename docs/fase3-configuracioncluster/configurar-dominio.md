@@ -2,11 +2,11 @@
 
 ## 1. Objetivo
 
-El objetivo de esta configuración es hacer que el dominio público `meu-project.me` apunte a la infraestructura del proyecto para que el tráfico web entre directamente por el **master de Kubernetes**, identificado por la IP elástica `52.91.73.172`. Esta solución permite centralizar la entrada de tráfico en un único punto, simplificar la gestión del acceso web y preparar la plataforma para su posterior distribución interna mediante Ingress y los servicios de Kubernetes.
+El objetivo de esta configuración es hacer que el dominio público `meu-project.me` apunte a la infraestructura del proyecto para que el tráfico web entre directamente por el **master de Kubernetes**, identificado por la IP elástica `54.163.235.144`. Esta solución permite centralizar la entrada de tráfico en un único punto, simplificar la gestión del acceso web y preparar la plataforma para su posterior distribución interna mediante Ingress y los servicios de Kubernetes.
 
 ## 2. Resumen de la arquitectura
 
-La arquitectura DNS implementada es sencilla y funcional. El dominio se ha registrado en **Namecheap** y se ha configurado para resolver hacia la **Elastic IP** asociada al nodo master de AWS. A nivel operativo, esto significa que cuando un usuario escribe `meu-project.me` o `www.meu-project.me`, el proveedor DNS devuelve la IP pública fija `52.91.73.172`, que es la puerta de entrada del clúster.
+La arquitectura DNS implementada es sencilla y funcional. El dominio se ha registrado en **Namecheap** y se ha configurado para resolver hacia la **Elastic IP** asociada al nodo master de AWS. A nivel operativo, esto significa que cuando un usuario escribe `meu-project.me` o `www.meu-project.me`, el proveedor DNS devuelve la IP pública fija `54.163.235.144`, que es la puerta de entrada del clúster.
 
 El uso de una **Elastic IP** es una decisión importante porque evita depender de una dirección pública cambiante. En entornos cloud, una IP pública normal puede modificarse si la instancia se detiene o se recrea, mientras que una Elastic IP permanece estable y mantiene el dominio siempre apuntando al mismo destino.
 
@@ -39,19 +39,23 @@ La configuración DNS aplicada es la siguiente:
 
 | Tipo | Host | Valor |
 |---|---|---|
-| A | `@` | `52.91.73.172` |
-| A | `www` | `52.91.73.172` |
+| A | `@` | `54.163.235.144` |
+| A | `www` | `54.163.235.144` |
 
 El host `@` representa el dominio raíz, es decir, `meu-project.me`. El host `www` permite que también funcione `www.meu-project.me`, manteniendo ambas variantes dirigidas al mismo servidor.
 
 El TTL se ha dejado en valor automático, lo que resulta adecuado para una configuración estándar y evita complicaciones innecesarias.
+
+<div align="center">
+  <img src="../../media/advanced_dns.png" alt="Configuración dns" />
+</div>
 
 ## 6. Flujo de acceso
 
 Una vez aplicada la configuración, el recorrido del tráfico es el siguiente:
 
 1. El usuario escribe `meu-project.me` en el navegador.
-2. El navegador consulta el DNS y obtiene la IP `52.91.73.172`.
+2. El navegador consulta el DNS y obtiene la IP `54.163.235.144`.
 3. Esa IP corresponde a la Elastic IP del master de Kubernetes.
 4. El tráfico llega al nodo master.
 5. El master recibe la petición y la gestiona mediante la capa de entrada del clúster.
@@ -83,7 +87,7 @@ También conviene evitar cambios frecuentes en los registros DNS una vez que la 
 
 Tras la configuración, el comportamiento esperado es el siguiente:
 
-- `meu-project.me` debe resolver a `52.91.73.172`.
+- `meu-project.me` debe resolver a `54.163.235.144`.
 - `www.meu-project.me` debe resolver a la misma IP.
 - El navegador debe llegar al master sin errores de DNS.
 - Si el Ingress está correctamente configurado, el dominio debe mostrar la aplicación o panel previsto.
@@ -102,6 +106,6 @@ En caso de fallo, lo primero es comprobar que el dominio resuelve a la IP correc
 
 ## 11. Conclusión
 
-La configuración de `meu-project.me` en Namecheap apuntando a la Elastic IP `52.91.73.172` proporciona una base sólida, estable y profesional para el proyecto. Esta solución permite centralizar el acceso en el master de Kubernetes, mantener una URL fija para el desarrollo y la presentación, y preparar la infraestructura para un despliegue más completo mediante Ingress y servicios internos.
+La configuración de `meu-project.me` en Namecheap apuntando a la Elastic IP `54.163.235.144` proporciona una base sólida, estable y profesional para el proyecto. Esta solución permite centralizar el acceso en el master de Kubernetes, mantener una URL fija para el desarrollo y la presentación, y preparar la infraestructura para un despliegue más completo mediante Ingress y servicios internos.
 
 Si quieres, el siguiente paso puede ser convertir este texto en una versión más formal de memoria técnica, con estilo de TFG y formato aún más académico.
