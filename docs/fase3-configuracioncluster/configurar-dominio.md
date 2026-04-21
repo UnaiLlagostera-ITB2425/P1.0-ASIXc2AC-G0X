@@ -46,6 +46,10 @@ El host `@` representa el dominio raíz, es decir, `meu-project.me`. El host `ww
 
 El TTL se ha dejado en valor automático, lo que resulta adecuado para una configuración estándar y evita complicaciones innecesarias.
 
+<div align="center">
+  <img src="../../media/advanced_dns.png" alt="Configuración dns" />
+</div>
+
 ## 6. Flujo de acceso
 
 Una vez aplicada la configuración, el recorrido del tráfico es el siguiente:
