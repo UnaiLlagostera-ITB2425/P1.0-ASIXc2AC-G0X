@@ -134,6 +134,7 @@ Creación del esquema base de la plataforma de hosting multicliente en la base d
      USE plataforma_hosting;
      SHOW TABLES;
      ```
+     ![Imagen de la instancia](../../media/comprovacion_tablas_SQL.png)
      
 ## Estado
    - Esquema plataforma_hosting creado con 6 tablas
