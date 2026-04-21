@@ -22,7 +22,7 @@ Creación del esquema base de la plataforma de hosting multicliente en la base d
 
 ## Pasos ejecutados
    - **Archivo: init_plataforma.sql**
-     Script almacenado en /home/meu_db1/init_plataforma.sql en la instancia ec2-ddbb. Pendiente de mover a        repositorio del proyecto para control de versiones y reutilización en automatización.
+     Script almacenado en **/home/meu_db1/init_plataforma.sql** en la instancia ec2-ddbb. Pendiente de mover a        repositorio del proyecto para control de versiones y reutilización en automatización.
      ```sql
      CREATE DATABASE IF NOT EXISTS plataforma_hosting
      CHARACTER SET utf8mb4
