@@ -120,3 +120,24 @@ Creación del esquema base de la plataforma de hosting multicliente en la base d
          ON DELETE SET NULL ON UPDATE CASCADE
      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
      ```
+   - Comandos ejecutados:
+     ```sql
+     # Creación del archivo SQL (y aqui onemos el codigo anterior)
+     nano init_plataforma.sql
+
+     # Carga del script en MariaDB
+     sudo mariadb
+     SOURCE /home/meu_db1/init_plataforma.sql;
+
+     # Verificación
+     USE plataforma_hosting;
+     SHOW TABLES;
+     ```
+     
+## Estado
+   - Esquema plataforma_hosting creado con 6 tablas
+   - Motor InnoDB, utf8mb4, claves foráneas e integridad referencial
+   - Script verificado con SHOW TABLES
+   - Script movido al repositorio del proyecto
+   - Datos de prueba insertados para validar relaciones
+   - Integrado en automatización Python/Bash de aprovisionamiento
