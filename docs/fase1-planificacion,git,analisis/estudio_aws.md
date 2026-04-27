@@ -130,7 +130,7 @@ A continuación se presenta la webgrafía correspondiente al documento **Justifi
 
 ***
 
-## Webgrafía
+## Enlaces de interés
 
 - Amazon Web Services. (2026, 8 de abril). *Amazon EC2 T3 instances*. Amazon Web Services. https://aws.amazon.com/ec2/instance-types/t3/ [aws.amazon](https://aws.amazon.com/ec2/instance-types/t3/)
 

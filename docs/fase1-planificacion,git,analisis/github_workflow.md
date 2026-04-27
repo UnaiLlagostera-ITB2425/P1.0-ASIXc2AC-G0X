@@ -56,7 +56,7 @@ Seleccionar y copiar la salida del comando anterior, para posteriormente enviar 
 ![Registro GitHub](img/add_key.png)
 *Captura: Interfaz de GitHub para añadir nueva clave SSH*
 
-> 💡 **Nota:** a la hora de crearlas cada servidor tiene su propia clave únicamente de lectura y cada usuario tiene su respectiva clave con capacidad de escritura.
+> **Nota:** a la hora de crearlas cada servidor tiene su propia clave únicamente de lectura y cada usuario tiene su respectiva clave con capacidad de escritura.
 
 ---
 

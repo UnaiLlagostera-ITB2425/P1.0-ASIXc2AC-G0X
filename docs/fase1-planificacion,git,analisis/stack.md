@@ -124,7 +124,7 @@ Según estudios de rendimiento publicados, en escenarios de carga OLTP con mucho
 | Compatibilidad con MySQL | **Total** | — | Parcial |
 | Imagen Docker oficial | Sí | Sí | Sí |
 | Desarrollo libre y activo | **Sí** | Parcial (Oracle) | Sí |
-| Adecuado para este proyecto | ✅ **Mejor opción** | ⚠️ Viable (sin ventajas) | ❌ Excesivo para el perfil |
+| Adecuado para este proyecto | **Mejor opción** | Viable (sin ventajas) | Excesivo para el perfil |
 
 ### 1.5 Decisión justificada: MariaDB
 
@@ -254,7 +254,7 @@ Caddy es un servidor web moderno escrito en Go, con gestión automática de cert
 | Generación de config por plantillas | **Muy sencillo** | Complejo | Sencillo |
 | Comunidad y documentación | **Muy amplia** | Muy amplia | Media |
 | Madurez en producción | **Muy alta** | Muy alta | Media |
-| Adecuado para este proyecto | ✅ **Mejor opción** | ⚠️ Viable con limitaciones | ❌ Inmaduro en K8s |
+| Adecuado para este proyecto | **Mejor opción** | Viable con limitaciones | Inmaduro en K8s |
 
 ### 2.4 Decisión justificada: Nginx + PHP-FPM
 
