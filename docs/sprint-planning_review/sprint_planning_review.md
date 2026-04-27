@@ -2,7 +2,7 @@
 
 ## Sprint Planning 1 (13/04/2026)
 
-Hoy hemos tenido la primera reunión de planificación del sprint. Nos hemos juntado todo el equipo para poner encima de la mesa las ideas y decidir cómo atacar el proyecto.
+Hoy hemos tenido la primera reunión de planificación del sprint. Nos hemos juntado todo el equipo para poner encima de la mesa las ideas y decidir cómo atacar el proyecto. Hemos acudido todo los integrantes del grupo (Unai, Erick y Manuel)
 
 ### Lluvia de ideas inicial
 
@@ -70,7 +70,7 @@ El backlog del sprint 1 queda así:
 
 ## Sprint Planning 2 (28/04/2026)
 
-Después de cerrar el Sprint 1, hemos hecho una nueva reunión de planificación para reorganizar el proyecto según el tiempo real que nos queda. Durante este segundo sprint vamos a intentar concentrar prácticamente todo el trabajo restante en un único bloque, ya que finalmente se nos ha recortado el calendario y **no habrá Sprint 3** como estaba previsto al principio.
+Después de cerrar el Sprint 1, hemos hecho una nueva reunión de planificación para reorganizar el proyecto según el tiempo real que nos queda. Durante este segundo sprint vamos a intentar concentrar prácticamente todo el trabajo restante en un único bloque, ya que finalmente se nos ha recortado el calendario y **no habrá Sprint 3** como estaba previsto al principio. Hemos acudido dos integrantes del grupo (Unai y Erick)
 
 Esto nos obliga a ajustar la planificación de forma más realista. En lugar de dividir el proyecto en tres sprints, hemos decidido reordenar el trabajo para que el Sprint 2 incluya también parte de lo que inicialmente estaba pensado para el Sprint 3. De esta forma, intentaremos cerrar en esta segunda iteración tanto la parte funcional como la mayor parte de la documentación y presentación final.
 
@@ -167,7 +167,7 @@ Si conseguimos eso, consideraremos que el proyecto está bien encaminado y que h
 
 ## Sprint Review 1 (27/04/2026)
 
-La primera revisión del proyecto nos ha servido para valorar con bastante perspectiva cómo ha evolucionado el trabajo durante el Sprint 1. En líneas generales, el balance es **positivo**: hemos conseguido dejar cerrada la base conceptual del proyecto, aterrizar la arquitectura que vamos a utilizar y avanzar de forma real en la infraestructura técnica sobre AWS.
+La primera revisión del proyecto nos ha servido para valorar con bastante perspectiva cómo ha evolucionado el trabajo durante el Sprint 1. En líneas generales, el balance es **positivo**: hemos conseguido dejar cerrada la base conceptual del proyecto, aterrizar la arquitectura que vamos a utilizar y avanzar de forma real en la infraestructura técnica sobre AWS. Hemos acudido dos integrantes del grupo (Unai y Erick)
 
 Este sprint estaba centrado en sentar los cimientos del sistema, y precisamente esa ha sido la parte más importante que hemos consolidado. Hemos transformado una idea ambiciosa en una estructura de trabajo mucho más concreta, dividida por fases, con backlog, asignaciones y tareas priorizadas. Eso nos ha permitido no dispersarnos y centrar el esfuerzo en lo que verdaderamente era crítico para poder seguir construyendo en el Sprint 2.
 
