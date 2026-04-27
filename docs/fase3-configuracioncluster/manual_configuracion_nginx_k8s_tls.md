@@ -176,7 +176,7 @@ http {
 | HTTP | 80 | `/.well-known/acme-challenge/` → proxy al NodePort 31967; resto → `301 HTTPS` |
 | HTTPS | 443 | Termina TLS con el certificado Let's Encrypt; proxy al NodePort 30080 |
 
-> ⚠️ La cabecera `X-Forwarded-Proto: https` es crítica: informa a la aplicación y al Ingress que la conexión original era segura, evitando bucles de redirección internos cuando el Ingress tiene `ssl-redirect: true`.
+> La cabecera `X-Forwarded-Proto: https` es crítica: informa a la aplicación y al Ingress que la conexión original era segura, evitando bucles de redirección internos cuando el Ingress tiene `ssl-redirect: true`.
 
 ### 2.4 Gestión del contenedor
 
@@ -211,7 +211,9 @@ docker exec nginx-proxy nginx -s reload
 docker inspect nginx-proxy | grep -A 10 '"Mounts"'
 ```
 
-> 📸 **[CAPTURA SUGERIDA]** Output de `docker ps` mostrando el contenedor `nginx-proxy` en estado `Up` con los puertos `0.0.0.0:80->80/tcp` y `0.0.0.0:443->443/tcp` correctamente mapeados.
+<div align="center">
+  <img src="../../media/docker_ps_nginx.png" alt="Outpout de docker ps" />
+</div>
 
 ---
 
@@ -245,7 +247,10 @@ k8s-master   Ready    control-plane   Xd    v1.x.x    10.0.1.136    Ubuntu 22.04
 k8s-worker   Ready    <none>          Xd    v1.x.x    10.1.2.96     Ubuntu 22.04
 ```
 
-> 📸 **[CAPTURA SUGERIDA]** Output de `kubectl get nodes -o wide` con ambos nodos en estado `Ready`, mostrando sus IPs internas y la versión de Kubernetes instalada.
+<div align="center">
+  <img src="../../media/kubectl_get_nodes_wide.png" alt="Outpout de kubectl nodes" />
+</div>
+
 
 ### 3.3 Recursos de la aplicación
 
@@ -268,7 +273,9 @@ kubectl get services -n default
 kubectl get pods -n default -o wide
 ```
 
-> 📸 **[CAPTURA SUGERIDA]** Output de `kubectl get services -n default` mostrando el servicio de la aplicación con los NodePorts asignados (30080 para tráfico de app, 31967 para ACME challenge).
+<div align="center">
+  <img src="../../media/kubectl_services_view.png" alt="Outpout de kubectl services" />
+</div>
 
 ---
 
@@ -338,7 +345,7 @@ spec:
 
 ### 4.4 Gestión temporal del ssl-redirect durante el challenge
 
-> ⚠️ **Problema conocido:** Con `ssl-redirect: true` activo, el Ingress redirige la petición HTTP-01 de Let's Encrypt (que llega por el puerto 80) a HTTPS antes de que el certificado exista. Esto rompe el proceso de validación y el challenge falla.
+> **Problema conocido:** Con `ssl-redirect: true` activo, el Ingress redirige la petición HTTP-01 de Let's Encrypt (que llega por el puerto 80) a HTTPS antes de que el certificado exista. Esto rompe el proceso de validación y el challenge falla.
 
 **Solución: desactivar temporalmente durante la emisión inicial del certificado:**
 
@@ -363,7 +370,9 @@ kubectl get ingress -n default
 kubectl describe ingress meu-project-ingress -n default
 ```
 
-> 📸 **[CAPTURA SUGERIDA]** Output de `kubectl describe ingress meu-project-ingress` mostrando las anotaciones aplicadas, las reglas de enrutamiento para `meu-project.me` y el TLS configurado con el secret `meu-project-tls`.
+<div align="center">
+  <img src="../../media/kubectl_describe_ingress.png" alt="Outpout de kubectl certificates" />
+</div>
 
 ---
 
@@ -392,7 +401,9 @@ Pods esperados en el namespace `cert-manager`:
 | `cert-manager-cainjector-*` | Inyector de CA — inyecta datos de la CA en los webhooks |
 | `cert-manager-webhook-*` | Webhook de validación — valida los recursos CRD de cert-manager |
 
-> 📸 **[CAPTURA SUGERIDA]** Output de `kubectl get pods -n cert-manager` con los tres pods en estado `Running 1/1`.
+<div align="center">
+  <img src="../../media/kubectl_describe_ingress.png" alt="Outpout de kubectl services" />
+</div>
 
 ### 5.2 ClusterIssuer — Let's Encrypt Producción
 
@@ -725,3 +736,250 @@ echo | openssl s_client -connect meu-project.me:443 2>/dev/null \
 ```
 
 ---
+
+Aquí tienes el apartado listo para copiar y pegar en tu documentación:
+
+***
+
+```markdown
+---
+
+## 9. Troubleshooting
+
+### 9.1 502 Bad Gateway en la web
+
+**Síntoma:** La web devuelve `502 Bad Gateway` al acceder via HTTPS.
+
+**Diagnóstico:**
+```bash
+# Comprobar si el Ingress del Worker responde
+curl -v http://<IP_WORKER>:30080/
+
+# Comprobar estado de los nodos
+kubectl get nodes
+
+# Comprobar estado de los pods
+kubectl get pods -A
+```
+
+**Causas posibles:**
+- API Server caído → ver sección 9.2
+- Ingress Controller no responde → ver sección 9.3
+- NGINX Docker mal configurado → ver sección 9.4
+
+---
+
+### 9.2 API Server caído — `connection refused` en puerto 6443
+
+**Síntoma:**
+```
+The connection to the server 10.0.1.X:6443 was refused
+```
+
+**Diagnóstico:**
+```bash
+sudo systemctl status kubelet
+sudo journalctl -u kubelet -n 30 --no-pager | grep -E "error|Error|failed|Failed"
+```
+
+#### 9.2.1 `config.yaml` del kubelet no existe
+
+**Error en logs:**
+```
+failed to load kubelet config file /var/lib/kubelet/config.yaml: no such file or directory
+```
+
+**Solución:**
+```bash
+sudo kubeadm init phase kubelet-start
+sudo systemctl restart kubelet
+sleep 15
+kubectl get nodes
+```
+
+---
+
+#### 9.2.2 `kubelet-client-current.pem` no existe
+
+**Error en logs:**
+```
+unable to read client-cert /var/lib/kubelet/pki/kubelet-client-current.pem:
+no such file or directory
+```
+
+**Solución:**
+```bash
+# Verificar que los certificados del clúster existen
+ls -la /etc/kubernetes/pki/apiserver-kubelet-client.*
+
+# Regenerar el PEM combinando certificado + clave
+sudo bash -c 'cat /etc/kubernetes/pki/apiserver-kubelet-client.crt \
+                  /etc/kubernetes/pki/apiserver-kubelet-client.key \
+              > /var/lib/kubelet/pki/kubelet-client-current.pem'
+
+sudo chmod 600 /var/lib/kubelet/pki/kubelet-client-current.pem
+
+# Verificar que contiene ambos bloques
+sudo grep "BEGIN" /var/lib/kubelet/pki/kubelet-client-current.pem
+
+# Reiniciar el kubelet
+sudo systemctl restart kubelet
+sleep 15
+kubectl get nodes
+```
+
+> 📸 **[CAPTURA SUGERIDA]:** Output de `kubectl get nodes` con ambos nodos en estado `Ready`.
+
+---
+
+#### 9.2.3 Prevención — servicio de recuperación automática
+
+Para evitar que el `kubelet-client-current.pem` desaparezca tras un reinicio
+de la instancia EC2, instalar el siguiente servicio systemd:
+
+```bash
+# Crear el script de recuperación
+sudo tee /usr/local/bin/kubelet-pki-restore.sh << 'EOF'
+#!/bin/bash
+PKI_FILE="/var/lib/kubelet/pki/kubelet-client-current.pem"
+CRT="/etc/kubernetes/pki/apiserver-kubelet-client.crt"
+KEY="/etc/kubernetes/pki/apiserver-kubelet-client.key"
+
+if [ ! -f "$PKI_FILE" ] && [ -f "$CRT" ] && [ -f "$KEY" ]; then
+  mkdir -p /var/lib/kubelet/pki
+  cat "$CRT" "$KEY" > "$PKI_FILE"
+  chmod 600 "$PKI_FILE"
+fi
+EOF
+
+sudo chmod +x /usr/local/bin/kubelet-pki-restore.sh
+
+# Crear el servicio systemd
+sudo tee /etc/systemd/system/kubelet-pki-restore.service << 'EOF'
+[Unit]
+Description=Restore kubelet client PKI if missing
+Before=kubelet.service
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/kubelet-pki-restore.sh
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+sudo systemctl daemon-reload
+sudo systemctl enable kubelet-pki-restore.service
+```
+
+---
+
+### 9.3 Ingress Controller no responde
+
+**Síntoma:** `curl http://<IP_WORKER>:30080/` devuelve `Connection refused`.
+
+**Diagnóstico:**
+```bash
+# Estado del pod del Ingress Controller
+kubectl get pods -n ingress-nginx
+
+# Logs del Ingress Controller
+kubectl logs -n ingress-nginx \
+  $(kubectl get pods -n ingress-nginx -o name | head -1) --tail 30
+
+# Verificar endpoints del servicio de la aplicación
+kubectl get endpoints -n default
+```
+
+**Solución más común:** El API Server estaba caído y el pod del Ingress quedó
+en estado `Pending` o `CrashLoopBackOff`. Una vez recuperado el API Server
+(ver 9.2), el pod se recupera automáticamente en ~1 minuto.
+
+```bash
+# Forzar recreación del pod si no se recupera solo
+kubectl rollout restart deployment ingress-nginx-controller -n ingress-nginx
+kubectl get pods -n ingress-nginx -w
+```
+
+---
+
+### 9.4 NGINX Docker — `proxy_pass` no enruta correctamente
+
+**Síntoma:** El Ingress responde bien en el puerto 30080 pero la web sigue
+dando 502.
+
+**Diagnóstico:**
+```bash
+# Logs de errores del contenedor NGINX
+docker logs nginx-proxy --tail 50 2>&1 | grep -E "error|502|upstream|failed"
+
+# Ver el fichero de configuración activo
+docker exec nginx-proxy nginx -T | grep -A5 "upstream\|proxy_pass"
+```
+
+**Verificación del proxy_pass:**
+```bash
+# La IP del proxy_pass debe apuntar al Worker, no al Master
+# Correcto:   proxy_pass http://10.1.2.96:30080;
+# Incorrecto: proxy_pass http://10.0.1.136:30080;
+
+# Recargar configuración tras corregir
+docker exec nginx-proxy nginx -s reload
+```
+
+---
+
+### 9.5 Certificado TLS — web no carga en HTTPS
+
+**Síntoma:** El navegador muestra error de certificado o la web no carga en HTTPS.
+
+**Diagnóstico:**
+```bash
+# Estado del certificado de cert-manager
+kubectl get certificate -n default
+kubectl describe certificate meu-project-tls -n default
+
+# Estado del challenge ACME
+kubectl get challenges -n default
+kubectl get orders -n default
+```
+
+**Problema frecuente — ssl-redirect bloquea el challenge HTTP-01:**
+
+Si el challenge queda en estado `pending`, desactivar temporalmente el
+redirect SSL durante la emisión:
+
+```bash
+# Desactivar redirect SSL temporalmente
+kubectl annotate ingress <nombre-ingress> \
+  "nginx.ingress.kubernetes.io/ssl-redirect=false" --overwrite
+
+# Esperar a que el certificado esté Ready
+kubectl get certificate -w
+
+# Reactivar redirect SSL
+kubectl annotate ingress <nombre-ingress> \
+  "nginx.ingress.kubernetes.io/ssl-redirect=true" --overwrite
+```
+
+> **Estado esperado tras resolución:**
+> ```
+> NAME              READY   SECRET            AGE
+> meu-project-tls   True    meu-project-tls   Xm
+> ```
+
+---
+
+### 9.6 Tabla resumen de incidencias
+
+| Error | Causa raíz | Comando de diagnóstico | Solución rápida |
+|-------|-----------|----------------------|-----------------|
+| `502 Bad Gateway` | API Server caído | `kubectl get nodes` | Ver 9.2 |
+| `config.yaml not found` | Reboot EC2 borró el fichero | `journalctl -u kubelet` | `kubeadm init phase kubelet-start` |
+| `kubelet-client-current.pem not found` | Directorio PKI vacío | `ls /var/lib/kubelet/pki/` | Regenerar PEM con `cat crt + key` |
+| `Connection refused :30080` | Pod Ingress caído | `kubectl get pods -n ingress-nginx` | `kubectl rollout restart` |
+| Challenge ACME pendiente | ssl-redirect activo | `kubectl get challenges` | Anotar `ssl-redirect=false` |
+| `proxy_pass` incorrecto | IP apunta al Master | `docker exec nginx-proxy nginx -T` | Corregir IP al Worker |
+```
