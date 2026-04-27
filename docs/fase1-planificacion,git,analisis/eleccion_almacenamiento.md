@@ -4,7 +4,7 @@ Los contenedores en Kubernetes son efímeros por naturaleza: si un pod se reinic
 
 En este proyecto, la capa de persistencia recae principalmente sobre MariaDB, desplegado en un nodo EC2 dedicado (EC2 DDBB) fuera del clúster K3s. El objetivo de este documento es evaluar las opciones de almacenamiento disponibles y justificar la decisión final.
 
-Se han evaluado tres soluciones: AWS EBS, NFS Local y Longhorn.
+Se han evaluado cuatro soluciones: AWS EBS, NFS Local, Longhorn y Local Path Provisioner.
 
 ## Conceptos previos
 Antes de entrar en las soluciones, es útil conocer dos términos clave de Kubernetes:
@@ -19,15 +19,16 @@ Antes de entrar en las soluciones, es útil conocer dos términos clave de Kuber
 - **AWS EBS (Elastic Block Store):** Disco virtual gestionado por Amazon. Funciona como un pendrive que se conecta a un servidor en la nube de AWS.
 
   **Tipo:** Almacenamiento en bloque gestionado por AWS | **Modo de acceso:** RWO
-  | Puntos fuertes                                     | Puntos débiles                                   |
-  | -------------------------------------------------- | ------------------------------------------------ |
-  | Integración nativa con EC2 y AWS                   | Solo funciona en entornos AWS                    |
-  | Datos replicados automáticamente dentro de la AZ   | Solo permite acceso desde un nodo a la vez (RWO) |
-  | Snapshots automáticos hacia S3                     | Coste continuo aunque la instancia esté apagada  |
-  | Alto rendimiento con tipo gp3 (IOPS configurables) | Latencia de red frente a disco local             |
-  | SLA 99,95% de disponibilidad                       | Sin acceso multi-nodo nativo                     |
-  | Sin gestión adicional de software en el nodo       | —                                                |
+  | Puntos fuertes                                     | Puntos débiles                                                        |
+  | -------------------------------------------------- | --------------------------------------------------------------------- |
+  | Integración nativa con EC2 y AWS                   | Solo funciona en entornos AWS                                         |
+  | Datos replicados automáticamente dentro de la AZ   | Solo permite acceso desde un nodo a la vez (RWO)                      |
+  | Snapshots automáticos hacia S3                     | Coste continuo aunque la instancia esté apagada                       |
+  | Alto rendimiento con tipo gp3 (IOPS configurables) | Latencia de red frente a disco local                                  |
+  | SLA 99,95% de disponibilidad                       | Sin acceso multi-nodo nativo                                          |
+  | Sin gestión adicional de software en el nodo       | El EBS CSI Driver requiere permisos IAM no disponibles en AWS Academy |
   - **Casos de uso ideales:** Bases de datos (MySQL, MariaDB, PostgreSQL), almacenamiento de datos críticos que deben sobrevivir a reinicios de instancias.
+  
 
 - **NFS Local (Network File System):** Servidor de archivos compartido en red. Funciona como una carpeta compartida a la que todos los nodos del clúster pueden acceder a la vez.
   **Tipo:** Sistema de archivos en red | **Modo de acceso:** RWX
@@ -37,7 +38,7 @@ Antes de entrar en las soluciones, es útil conocer dos términos clave de Kuber
   | Compatible con cualquier entorno           | Rendimiento limitado por la red                        |
   | Bajo coste                                 | Sin alta disponibilidad nativa                         |
   | Sin dependencia de proveedor cloud         | No recomendado para bases de datos de alto rendimiento |
-  - **Casos de uso ideales:** Archivos compartidos entre pods, assets estáticos, entornos de desarrollo. No recomendado para bases de datos.
+  - **Casos de uso ideales:** Archivos compartidos entre pods, assets estáticos, entornos de desarrollo. No recomendado para bases de datos
 
 - **Longhorn:** Solución de almacenamiento distribuido diseñada específicamente para Kubernetes. Reparte y replica los datos automáticamente entre los nodos del clúster.
   **Tipo:** Almacenamiento en bloque distribuido cloud-native | **Modo de acceso:** RWO
@@ -48,13 +49,27 @@ Antes de entrar en las soluciones, es útil conocer dos términos clave de Kuber
   | Panel web de gestión integrado     | Más complejo de operar que EBS                                                      |
   | Backups a S3 integrados            | Overhead adicional en cada nodo del clúster                                         |
   | Sin dependencia de proveedor cloud | Nuestras instancias t3.small tienen 2 GB RAM; Longhorn consume ~200-300 MB por nodo |
-  - **Conclusión:** La opción más completa y alineada con nuestro proyecto.
 
-## Solución Adoptada: AWS EBS
-Se adopta AWS EBS como única solución de almacenamiento persistente del proyecto, por las siguientes razones:
-- Integración nativa con EC2: no requiere instalar ningún software adicional en los nodos. En un entorno que ya corre sobre AWS, EBS es la opción más directa y sin overhead.
-- La base de datos está fuera del clúster K3s: MariaDB corre directamente sobre el SO del EC2 DDBB. Longhorn y NFS están diseñados para pods de Kubernetes, no para procesos del sistema operativo.
-- Recursos limitados (t3.small, 2 GB RAM): Longhorn consume ~200-300 MB por nodo, un coste no justificado cuando EBS no consume ningún recurso adicional en el nodo.
-- Snapshots nativos hacia S3: cubre el requisito de backups sin software adicional, combinado con mysqldump programado periódicamente.
+- **Local Path Provisioner (Rancher/K3s):** Proveedor de almacenamiento local integrado por defecto en K3s. Crea volúmenes persistentes usando directorios del sistema de archivos del nodo donde corre el pod.
+  **Tipo:** Almacenamiento local en el nodo | **Modo de acceso:** RWO
+  | Puntos fuertes                                          | Puntos débiles                                     |
+  | ------------------------------------------------------- | -------------------------------------------------- |
+  | Integrado por defecto en K3s, sin instalación adicional | Sin replicación entre nodos                        |
+  | Sin permisos AWS ni drivers externos necesarios         | Los datos quedan ligados al nodo físico            |
+  | Consumo de recursos prácticamente nulo                  | No apto para alta disponibilidad                   |
+  | Coherente con la filosofía nativa de K3s                | Sin snapshots automáticos integrados               |
+  | Ideal para entornos con restricciones IAM               | Si el nodo falla, los datos del volumen se pierden |
+  - **Casos de uso ideales:** Almacenamiento dentro del clúster para proyectos con restricciones de permisos cloud, entornos académicos, cargas de trabajo sin requisito de alta disponibilidad.
 
-**NFS** queda descartado por no ser adecuado para bases de datos y por introducir un punto único de fallo. **Longhorn** queda descartado porque sus ventajas (portabilidad, independencia de proveedor) no son relevantes en un entorno ya comprometido con AWS.
+## Solución Adoptada: dos capas diferenciadas
+**Almacenamiento fuera del clúster — EC2 DDBB con MariaDB:** Se mantiene AWS EBS (gp3) para el volumen de datos de MariaDB en el EC2 DDBB. MariaDB corre directamente sobre el SO del nodo, no como pod de Kubernetes. En este contexto, EBS es la solución correcta: se monta como punto de montaje del sistema operativo (/var/lib/mysql) y no requiere ningún driver de Kubernetes.
+
+Snapshots nativos hacia S3 combinados con mysqldump programado cubren el requisito de backups sin software adicional.
+
+**Almacenamiento dentro del clúster — StorageClass para pods y PVCs:** Se adopta Local Path Provisioner como StorageClass para los volúmenes persistentes dentro del clúster K3s, por las siguientes razones:
+- **Restricciones IAM de AWS Academy:** el EBS CSI Driver requiere crear roles y políticas IAM que las cuentas Learner Lab tienen bloqueados (iam:CreateRole, iam:CreatePolicy). No es posible instalarlo.
+- **Ya integrado en K3s:** Local Path Provisioner viene configurado por defecto como StorageClass en K3s sin instalación ni permisos adicionales.
+- **Sin overhead de recursos:** no consume RAM adicional en los nodos, crítico en instancias t3.small con 2 GB.
+- **Coherencia con el proyecto:** sigue el mismo principio aplicado en el resto de decisiones técnicas — usar tecnologías nativas o integradas en K3s sin añadir complejidad no justificada.
+
+**NF**S queda descartado por no ser adecuado para bases de datos y por introducir un punto único de fallo. **Longhorn** queda descartado por su overhead de memoria en instancias t3.small y porque sus ventajas de portabilidad no son relevantes en un entorno AWS. **EBS CSI Driver** queda descartado por las restricciones IAM de AWS Academy que impiden su instalación.
