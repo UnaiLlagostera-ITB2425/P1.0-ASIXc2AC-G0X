@@ -178,7 +178,7 @@ Los objetivos que nos marcamos al inicio del Sprint 1 fueron los siguientes:
 - Dejar definida y justificada la arquitectura general del proyecto.
 - Preparar el entorno cloud en AWS.
 - Desplegar las instancias base necesarias para el clúster.
-- Iniciar la configuración del clúster K3s.
+- Iniciar la configuración del clúster K8s.
 - Avanzar en la preparación del core de datos con MariaDB.
 - Organizar el backlog y el tablero de trabajo de forma realista.
 
@@ -218,9 +218,9 @@ Se ha avanzado en la creación y configuración de la infraestructura inicial so
 
 Una de las decisiones que consideramos acertadas ha sido mantener una estructura clara entre acceso, red y exposición pública, ya que esto nos está ayudando a entender mejor cómo debe entrar el tráfico al sistema y cómo vamos a conectar más adelante el dominio con el Ingress del clúster.
 
-#### 4. Primeros avances en K3s y MariaDB
+#### 4. Primeros avances en K8s y MariaDB
 
-Durante el sprint se ha podido iniciar el trabajo sobre la instalación del clúster K3s, la configuración de herramientas básicas como kubeconfig y Helm, y la preparación del bloque de base de datos. También se ha dejado encaminada la parte relacionada con Secrets, ConfigMap, despliegue de MariaDB y phpMyAdmin, aunque estas tareas todavía requieren consolidación en el siguiente sprint.
+Durante el sprint se ha podido iniciar el trabajo sobre la instalación del clúster K8s, la configuración de herramientas básicas como kubeconfig y Helm, y la preparación del bloque de base de datos. También se ha dejado encaminada la parte relacionada con Secrets, ConfigMap, despliegue de MariaDB y phpMyAdmin, aunque estas tareas todavía requieren consolidación en el siguiente sprint.
 
 No todo está completamente finalizado, pero sí hemos avanzado lo suficiente como para considerar que el proyecto ya ha salido de la fase puramente teórica y está entrando en una fase de construcción real.
 
