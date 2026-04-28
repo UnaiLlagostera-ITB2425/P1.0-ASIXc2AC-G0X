@@ -633,4 +633,4 @@ kubectl annotate ingress phpmyadmin-ingress \\
 Type: A Record | Host: pma | IP: 54.163.235.144 | TTL: Automatic
 ```
 
-cert-manager emitió el certificado de Let's Encrypt para `pma.meu-project.me` en menos de 60 segundos.
+cert-manager emitió el certificado de Let's Encrypt para `pma.meu-project.me`.
