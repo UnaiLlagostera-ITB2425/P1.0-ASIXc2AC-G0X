@@ -21,22 +21,29 @@ La BBDD centralizada ya está operativa en la EC2 dedicada de Manuel:
    - El acceso a MariaDB desde los pods se realiza a través de un Service + Endpoints externo apuntando a 10.2.2.154:3306 por VPC Peering.
    - Longhorn y NFS descartados — overhead innecesario en el entorno Educate con instancias de poca RAM.
 
-## Manifiesto Service + Endpoints externo
-Para que los pods del clúster puedan conectarse a la EC2 DDBB de Manuel:
-```sql
-CUANDO ME LO PASO ERICK
-```
-
-## Manifiesto StatefulSet + PVC
-A desplegar por Erick desde el Master:
-```sql
-CUANDO ME LO PASO ERICK
-```
-
 ## Prerrequisitos antes de desplegar
    - Secret mariadb-credentials aplicado con kubectl apply -f secret-mariadb.yaml
    - ConfigMap mariadb-config aplicado con kubectl apply -f configmap-mariadb.yaml
    - VPC Peering pcx-A-C activo y Route Tables configuradas
    - Puerto 3306 abierto en Security Group DDBB desde 10.0.0.0/16
    - Usuario meu_admin@10.0.% creado en MariaDB (ya hecho)
+   - Los manifiestos **secret-mariadb.yaml** y **configmap-mariadb.yaml** han sido preparados por Manuel como artefactos de integración para el clúster K3s. Su creación y configuración se documenta en el documento de configuración de instancia MariaDB.
 
+## Manifiesto Service + Endpoints externo (k8s/database/mariadb-external-service.yaml)
+Para que los pods del clúster puedan conectarse a la EC2 DDBB de Manuel:
+```sql
+CUANDO ME LO PASO ERICK
+```
+
+## Manifiesto StatefulSet + PVC (k8s/database/mariadb-statefulset.yaml)
+A desplegar por Erick desde el Master:
+```sql
+CUANDO ME LO PASO ERICK
+```
+
+## Estado
+   - Secret mariadb-credentials aplicado — kubectl apply -f secret-mariadb.yaml
+   - ConfigMap mariadb-config aplicado — kubectl apply -f configmap-mariadb.yaml
+   - Manifiesto Service + Endpoints externo desplegado
+   - Manifiesto StatefulSet + PVC desplegado
+   - Conectividad verificada desde pod al MariaDB de la EC2 DDBB (10.2.2.154:3306)

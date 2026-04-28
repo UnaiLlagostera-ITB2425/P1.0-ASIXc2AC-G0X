@@ -143,3 +143,78 @@ Creación del esquema base de la plataforma de hosting multicliente en la base d
    - Script movido al repositorio del proyecto
    - Datos de prueba insertados para validar relaciones
    - Integrado en automatización Python/Bash de aprovisionamiento
+
+
+---
+
+
+# Secrets BBDD y ConfigMap
+## Descripción
+Creación de los artefactos de configuración y credenciales para la base de datos centralizada: un Secret con las credenciales sensibles y un ConfigMap con los parámetros de conexión y el archivo my.cnf optimizado para la EC2 t3.small de 2 GB. La tarea se divide en dos partes según responsable.
+
+## Configuración del servidor — my.cnf
+Configuración aplicada en /etc/mysql/mariadb.conf.d/50-server.cnf, bloque [mariadb]
+```sql
+[mariadb]
+skip-name-resolve
+collation-server         = utf8mb4_unicode_ci
+innodb_buffer_pool_size  = 512M
+innodb_buffer_pool_instances = 1
+innodb_file_per_table    = 1
+max_connections          = 80
+tmp_table_size           = 64M
+max_heap_table_size      = 64M
+```
+- **Decisiones aplicadas:**
+  | Parámetro                    | Valor              | Motivo                                                      |
+  | ---------------------------- | ------------------ | ----------------------------------------------------------- |
+  | skip-name-resolve            | ON                 | Evita resolución DNS inversa en red privada con VPC Peering |
+  | collation_server             | utf8mb4_unicode_ci | Coherencia con el esquema plataforma_hosting                |
+  | innodb_buffer_pool_size      | 512M               | Conservador para 2 GB de RAM — estabilidad primero          |
+  | innodb_buffer_pool_instances | 1                  | Suficiente para ese tamaño de buffer pool                   |
+  | innodb_file_per_table        | ON                 | Un fichero .ibd por tabla — facilita backups y purgas       |
+  | max_connections              | 80                 | Moderado para evitar consumo excesivo en t3.small           |
+  | tmp_table_size               | 64M                | Equilibrado para consultas temporales sin disparar RAM      |
+  | max_heap_table_size          | 64M                | Coherente con tmp_table_size                                |
+
+## Pasos ejecutados
+   1. Copia de seguridad del archivo original (por si acaso falla)
+   ```sql
+   sudo cp /etc/mysql/mariadb.conf.d/50-server.cnf \
+        /etc/mysql/mariadb.conf.d/50-server.cnf.bak
+   ```
+
+   2. Entramos al archivo anterios y editamos el bloque [mariadb] (el contenido esta arriba)
+   ```sql
+   sudo nano /etc/mysql/mariadb.conf.d/50-server.cnf
+   ```
+
+   3. Reinicio del servicio
+   ```sql
+   sudo systemctl restart mariadb
+   sudo systemctl status mariadb
+   # → active (running)
+   ```
+   ![Imagen de la instancia](../../media/estado_mariaDB.png)
+
+   4. Verificación de variables
+   ```sql
+   SHOW VARIABLES LIKE 'skip_name_resolve';       -- ON
+   SHOW VARIABLES LIKE 'collation_server';        -- utf8mb4_unicode_ci
+   SHOW VARIABLES LIKE 'innodb_buffer_pool_size'; -- 536870912 (512M)
+   SHOW VARIABLES LIKE 'max_connections';         -- 80
+   SHOW VARIABLES LIKE 'tmp_table_size';          -- 67108864 (64M)
+   SHOW VARIABLES LIKE 'innodb_file_per_table';   -- ON
+   ```
+
+## Artefactos preparados para el clúster K3s
+Los siguientes manifiestos han sido preparados como artefactos de integración para el clúster K3s. Su despliegue operativo es responsabilidad de Erick y se documenta en el documento de despliegue del clúster MariaDB.
+
+## Estado
+   - my.cnf aplicado y verificado en EC2 DDBB
+   - MariaDB reiniciado correctamente — active (running)
+   - Todos los parámetros verificados con SHOW VARIABLES
+   - secret-mariadb.yaml preparado y entregado a Erick
+   - configmap-mariadb.yaml preparado y entregado a Erick
+   - kubectl apply -f secret-mariadb.yaml
+   - kubectl apply -f configmap-mariadb.yaml
