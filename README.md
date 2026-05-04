@@ -25,7 +25,7 @@ Más que presentar servicios sueltos, el objetivo es reunir en un mismo proyecto
 
 Este README está planteado como punto de entrada al proyecto. A medida que se complete la documentación de cada fase, los siguientes apartados servirán como índice navegable del repositorio.
 
-| Bloque | Ruta prevista | Contenido |
+| Bloque | Ruta | Contenido |
 |---|---|---|
 | Fase 1 | [`docs/fase1-planificacion,git,analisis/index.md`](docs/fase1-planificacion,git,analisis/index.md) | Planificación, análisis inicial, Git y decisiones base |
 | Fase 2 | [`docs/fase2-infraestructuraaws/index.md`](docs/fase2-infraestructuraaws/index.md) | Infraestructura en AWS, red, acceso y seguridad |
@@ -34,11 +34,12 @@ Este README está planteado como punto de entrada al proyecto. A medida que se c
 | Fase 5 | [`docs/fase5-api,automatizacion,planes/index.md`](docs/fase5-api,automatizacion,planes/index.md) | API, automatización y gestión de planes |
 | Fase 6 | [`docs/fase6-frontend/index.md`](docs/fase6-frontend/index.md) | Paneles de administración y cliente |
 | Fase 7 | [`docs/fase7-seguridad,pruebas/index.md`](docs/fase7-seguridad,pruebas/index.md) | Seguridad, hardening y pruebas |
-| Fase 8 | [`docs/fase8-observabilidad,logs/index.md`](docs/fase8-observabilidad,logs/index.md) | Observabilidad, métricas, logs y alertas |
+| Fase 8 | [`docs/fase8-observabilidad,Logs/index.md`](docs/fase8-observabilidad,Logs/index.md) | Observabilidad, métricas, logs y alertas |
 | Fase 9 | [`docs/fase9-backups/index.md`](docs/fase9-backups/index.md) | Backups y recuperación |
 | Fase 10 | [`docs/fase10-gitops,ci,cd/index.md`](docs/fase10-gitops,ci,cd/index.md) | GitOps, integración y despliegue continuo |
 | Fase 11 | [`docs/fase11-legal,documentacion/index.md`](docs/fase11-legal,documentacion/index.md) | Documentación final, RGPD y presentación |
 | Manuales | [`docs/manuales/`](docs/manuales/) | Guías de instalación, uso y administración |
+| Sprint Planning | [`docs/sprint-planning_review/`](docs/sprint-planning_review/) | Revisiones de sprint y planificación iterativa |
 
 ## Tecnologías principales
 
