@@ -146,7 +146,7 @@ Creación, adjunción y montaje de un volumen EBS gp3 dedicado de 10 GiB en la i
     sudo mount /dev/nvme1n1 /var/lib/mysql
 
     # Persistencia en fstab (Archivo: /etc/fstab)
-    UUID=f5f49a33-6ed7-473d-9b3d-cc00f45395a9  /var/lib/mysql  ext4  defaults,nofail  0  2
+    UUID=4f8a98ea-209f-4a54-ba24-f4585d69f20a  /var/lib/mysql  ext4  defaults,nofail  0  2
 
     # Verificación
     sudo mount -a

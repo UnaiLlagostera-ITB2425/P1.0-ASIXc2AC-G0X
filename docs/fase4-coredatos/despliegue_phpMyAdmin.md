@@ -1,19 +1,19 @@
 # Desplegar phpMyAdmin
 ## Descripción
-Despliegue de phpMyAdmin como instancia temporal dentro del clúster K3s, expuesta mediante Ingress con restricción por IP para auditar las tablas de la base de datos centralizada en la EC2 DDBB (10.2.2.154). phpMyAdmin no se instala en la EC2 DDBB, sino que corre como pod en el clúster y se conecta a MariaDB a través del Service externo ya desplegado.
+Despliegue de phpMyAdmin como instancia temporal dentro del clúster K3s, expuesta mediante Ingress con restricción por IP para auditar las tablas de la base de datos centralizada en la EC2 DDBB (10.2.2.191). phpMyAdmin no se instala en la EC2 DDBB, sino que corre como pod en el clúster y se conecta a MariaDB a través del Service externo ya desplegado.
 
 ## Contexto de la arquitectura
 | Elemento           | Valor                                             |
 | ------------------ | ------------------------------------------------- |
 | Pod                | Desplegado en clúster K3s — Master Erick          |
-| Conecta a          | 10.2.2.154:3306 vía Service externo + VPC Peering |
+| Conecta a          | 10.2.2.191:3306 vía Service externo + VPC Peering |
 | Expuesto en        | pma.meu-project.me                                |
 | Acceso restringido | IP pública de Erick + IP pública de Manuel        |
 | Carácter           | Temporal — solo para auditoría y validación       |
 
 ## Prerrequisitos
    - Clúster K3s operativo ✓
-   - Service externo mariadb-external-service desplegado apuntando a 10.2.2.154:3306
+   - Service externo mariadb-external-service desplegado apuntando a 10.2.2.191:3306
    - Secret mariadb-credentials aplicado en el clúster
    - Ingress Controller Nginx activo en el clúster
    - IPs públicas de Erick y Manuel conocidas para el whitelist
@@ -52,7 +52,7 @@ k8s/
                  - containerPort: 80
                env:
                  - name: PMA_HOST
-                   value: "10.2.2.154"
+                   value: "10.2.2.191"
                  - name: PMA_PORT
                    value: "3306"
      ```

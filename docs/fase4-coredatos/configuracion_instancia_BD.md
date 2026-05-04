@@ -8,7 +8,7 @@ Creación del esquema base de la plataforma de hosting multicliente en la base d
    - Claves foráneas con ON DELETE CASCADE/SET NULL — integridad referencial automática al eliminar clientes o sitios.
    - Columnas created_at / updated_at con CURRENT_TIMESTAMP — auditoría básica gestionada por el propio motor.
    - CREATE TABLE IF NOT EXISTS — script idempotente, se puede volver a ejecutar sin romper datos existentes.
-   - Script ejecutado con sudo mariadb — root de MariaDB vinculado a autenticación local del sistema en Ubuntu 22.04, acceso con -p bloqueado por diseño.
+   - Script ejecutado con sudo mariadb — root de MariaDB vinculado a autenticación local del sistema en Ubuntu 24.04, acceso con -p bloqueado por diseño.
 
 ## Tablas creadas
 | Tabla               | Propósito                                                     |
@@ -81,7 +81,7 @@ Creación del esquema base de la plataforma de hosting multicliente en la base d
        nombre_bd VARCHAR(120) NOT NULL UNIQUE,
        usuario_bd VARCHAR(120) NOT NULL UNIQUE,
        password_hash VARCHAR(255) NOT NULL,
-       host_bd VARCHAR(120) NOT NULL DEFAULT '10.2.2.154',
+       host_bd VARCHAR(120) NOT NULL DEFAULT '10.2.2.191',
        puerto_bd INT NOT NULL DEFAULT 3306,
        estado ENUM('activa','suspendida','eliminada') NOT NULL DEFAULT 'activa',
        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,

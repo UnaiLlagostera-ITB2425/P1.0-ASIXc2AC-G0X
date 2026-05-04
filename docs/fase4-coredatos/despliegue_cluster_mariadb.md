@@ -1,13 +1,13 @@
 # Desplegar clúster MariaDB
 ## Descripción
-Despliegue de MariaDB como recurso gestionado dentro del clúster K3s mediante un StatefulSet y un PVC, para garantizar estabilidad de identidad de pod y persistencia de datos. Esta tarea se ejecuta desde el nodo Master de Erick y se integra con la base de datos centralizada desplegada en la EC2 DDBB de Manuel (10.2.2.154).
+Despliegue de MariaDB como recurso gestionado dentro del clúster K3s mediante un StatefulSet y un PVC, para garantizar estabilidad de identidad de pod y persistencia de datos. Esta tarea se ejecuta desde el nodo Master de Erick y se integra con la base de datos centralizada desplegada en la EC2 DDBB de Manuel (10.2.2.191).
 
 ## Contexto de la arquitectura
 La BBDD centralizada ya está operativa en la EC2 dedicada de Manuel:
 | Elemento         | Valor                                              |
 | ---------------- | -------------------------------------------------- |
 | Instancia        | ec2-ddbb — t3.small, subred privada 10.2.2.0/24    |
-| IP privada       | 10.2.2.154                                         |
+| IP privada       | 10.2.2.191                                         |
 | Puerto           | 3306                                               |
 | Base de datos    | plataforma_hosting                                 |
 | Usuario          | meu_admin                                          |
@@ -18,7 +18,7 @@ La BBDD centralizada ya está operativa en la EC2 dedicada de Manuel:
    - El StatefulSet se despliega en el clúster K3s del Master (Cuenta A).
    - La persistencia real de datos no recae sobre el PVC de Kubernetes, sino sobre el EBS gp3 de la EC2 DDBB de Manuel.
    - El PVC actúa como referencia lógica dentro del clúster para mantener compatibilidad con el patrón StatefulSet estándar de Kubernetes.
-   - El acceso a MariaDB desde los pods se realiza a través de un Service + Endpoints externo apuntando a 10.2.2.154:3306 por VPC Peering.
+   - El acceso a MariaDB desde los pods se realiza a través de un Service + Endpoints externo apuntando a 10.2.2.191:3306 por VPC Peering.
    - Longhorn y NFS descartados — overhead innecesario en el entorno Educate con instancias de poca RAM.
 
 ## Prerrequisitos antes de desplegar
@@ -46,4 +46,4 @@ CUANDO ME LO PASO ERICK
    - ConfigMap mariadb-config aplicado — kubectl apply -f configmap-mariadb.yaml
    - Manifiesto Service + Endpoints externo desplegado
    - Manifiesto StatefulSet + PVC desplegado
-   - Conectividad verificada desde pod al MariaDB de la EC2 DDBB (10.2.2.154:3306)
+   - Conectividad verificada desde pod al MariaDB de la EC2 DDBB (10.2.2.191:3306)
