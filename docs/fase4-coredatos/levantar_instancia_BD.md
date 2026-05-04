@@ -157,11 +157,40 @@ Creación, adjunción y montaje de un volumen EBS gp3 dedicado de 10 GiB en la i
     ![securizacion inicial](../../media/arrancar_mariaDB.png)
     ![securizacion inicial](../../media/comprovacion.png)
 
+
+---
+
+
+## Montaje NFS para clientes
+Además del almacenamiento local de MariaDB, se habilitó un servicio NFS en la misma instancia para compartir datos de clientes en la plataforma.
+
+## Pasos ejecutados
+```sql
+# Instalación y preparación
+sudo apt-get install -y nfs-kernel-server
+sudo mkdir -p /srv/nfs/clientes
+sudo chown -R nobody:nogroup /srv/nfs/clientes
+sudo chmod 777 /srv/nfs/clientes
+
+# Exportación del recurso, Se configuró /etc/exports para compartir el directorio con la red interna:
+echo "/srv/nfs/clientes 10.0.0.0/8(rw,sync,no_subtree_check,no_root_squash)" | sudo tee -a /etc/exports
+sudo exportfs -ra
+
+# Activación del servicio
+sudo systemctl enable nfs-kernel-server
+sudo systemctl restart nfs-kernel-server
+
+Validación
+showmount -e localhost
+```
+
 ## Estado
    - Volumen EBS gp3 de 10 GiB creado en us-east-1c
    - Volumen adjuntado a ec2-ddbb como /dev/nvme1n1
    - Formateado con ext4
-   - Datos migrados desde datadir original con rsync
+   - Datos migrados desde el datadir original con rsync
    - Montado permanentemente en /var/lib/mysql vía fstab
    - MariaDB arrancado y operativo sobre el nuevo volumen
    - Verificado: 9.2G disponibles, 125M usados
+   - NFS configurado para clientes en /srv/nfs/clientes
+   - Export NFS activo para la red interna 10.0.0.0/8
