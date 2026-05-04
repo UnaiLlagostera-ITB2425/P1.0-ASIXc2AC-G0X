@@ -2,39 +2,16 @@
 
 ## 1. Arquitectura General
 
-El stack completo implementa el siguiente flujo de tráfico, desde el usuario final hasta la aplicación desplegada en Kubernetes:
+El flujo de tráfico externo es:
 
 ```
-Usuario (Internet)
-        │
-        ▼  Puerto 80 / 443
-┌────────────────────────────────────────┐
-│  AWS EC2 — IP pública                  │
-│  54.163.235.144                        │
-│                                        │
-│  ┌──────────────────────────────────┐  │
-│  │  Docker: nginx-proxy             │  │  ← Termina TLS · Proxy inverso
-│  │  Puerto 80  → Redirige a HTTPS   │  │
-│  │            → ACME challenge pass │  │
-│  │  Puerto 443 → proxy_pass HTTP    │  │
-│  └──────────────┬───────────────────┘  │
-└─────────────────┼──────────────────────┘
-                  │ HTTP interno (red privada AWS)
-                  ▼
-┌────────────────────────────────────────┐
-│  Nodo Worker — 10.1.2.96               │
-│                                        │
-│  Kubernetes Ingress Controller         │
-│  NodePort 30080  → Tráfico aplicación  │
-│  NodePort 31967  → ACME challenge      │
-└───────────────┬────────────────────────┘
-                │
-                ▼
-┌────────────────────────────────────────┐
-│  Kubernetes Service                    │
-│  → Pod (Aplicación)                    │
-└────────────────────────────────────────┘
+Internet → DNS (*.meu-project.me) → IP pública ec2-master
+         → NGINX Docker (puerto 80/443)
+         → Ingress NGINX Controller (NodePort)
+         → Services y Pods de Kubernetes
 ```
+
+Con la migración completa a Kubernetes, el **Ingress NGINX Controller** gestiona el tráfico directamente. El proxy Docker actúa como capa de entrada opcional para redirigir al NodePort del Ingress.
 
 ### Roles de cada nodo
 
@@ -60,12 +37,14 @@ El Docker NGINX actúa como **punto de entrada público** porque:
 
 ```
 ~/nginx-docker/
-├── docker-compose.yml        ← Definición del servicio Docker
+├── docker-compose.yml
 ├── conf/
-│   └── nginx.conf            ← Configuración del servidor NGINX
-└── certs/
-    ├── tls.crt               ← Certificado TLS (extraído del Secret de K8s)
-    └── tls.key               ← Clave privada TLS (extraída del Secret de K8s)
+│   └── nginx.conf
+├── certs/
+│   ├── fullchain.pem
+│   └── privkey.pem
+└── html/
+    └── index.html
 ```
 
 > ⚠️ El directorio `certs/` y sus ficheros deben existir **antes** de arrancar el contenedor.
@@ -79,11 +58,11 @@ services:
     image: nginx:alpine
     container_name: nginx-proxy
     ports:
-      - "80:80"       # HTTP público
-      - "443:443"     # HTTPS público
+      - "80:80"
+      - "443:443"
     volumes:
-      - ./conf/nginx.conf:/etc/nginx/nginx.conf:ro   # Configuración NGINX
-      - ./certs:/etc/nginx/certs:ro                  # Certificados TLS
+      - ./conf/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./certs:/etc/nginx/certs:ro
     networks:
       - nginx-net
     restart: unless-stopped
@@ -101,6 +80,24 @@ networks:
 | `ports` | `80:80`, `443:443` | Mapea puertos del host al contenedor |
 | `volumes` | `./conf`, `./certs` | Montados en modo `:ro` (solo lectura) por seguridad |
 | `restart` | `unless-stopped` | Reinicio automático salvo parada manual explícita |
+
+**Comandos de gestión:**
+
+```bash
+# Levantar el proxy
+cd ~/nginx-docker
+docker compose up -d
+
+# Ver estado y logs
+docker compose ps
+docker compose logs -f
+
+# Recargar configuración sin reiniciar
+docker compose exec nginx-proxy nginx -s reload
+
+# Parar
+docker compose down
+```
 
 ### 2.3 nginx.conf
 
@@ -180,37 +177,6 @@ http {
 
 ### 2.4 Gestión del contenedor
 
-```bash
-# Arrancar en segundo plano
-cd ~/nginx-docker
-docker compose up -d
-
-# Parar y eliminar el contenedor y la red
-docker compose down
-
-# Eliminar contenedores huérfanos de versiones anteriores
-docker compose down --remove-orphans
-docker rm -f nginx-proxy   # si persiste un contenedor con ese nombre
-
-# Ver el estado y los puertos expuestos
-docker ps
-
-# Ver los logs en tiempo real
-docker logs nginx-proxy -f
-
-# Ver los últimos 20 logs
-docker logs nginx-proxy --tail 20
-
-# Verificar la sintaxis del nginx.conf SIN reiniciar
-docker exec nginx-proxy nginx -t
-
-# Recargar la configuración SIN downtime (sin parar el contenedor)
-docker exec nginx-proxy nginx -s reload
-
-# Inspeccionar los volúmenes montados (verificar que certs está montado)
-docker inspect nginx-proxy | grep -A 10 '"Mounts"'
-```
-
 <div align="center">
   <img src="../../media/docker_ps_nginx.png" alt="Outpout de docker ps" />
 </div>
@@ -282,6 +248,41 @@ kubectl get pods -n default -o wide
 ## 4. Ingress Controller
 
 El **Ingress Controller de NGINX** gestiona el enrutamiento del tráfico HTTP/HTTPS entrante dentro del clúster Kubernetes. Corre como un pod en el nodo Worker y se expone al exterior mediante NodePorts.
+
+### Verificar estado
+
+```bash
+kubectl get svc -n ingress-nginx
+kubectl get pods -n ingress-nginx -o wide
+```
+
+Salida esperada:
+```
+NAME                       TYPE       CLUSTER-IP     PORT(S)
+ingress-nginx-controller   NodePort   10.105.105.1   80:31967/TCP,443:30601/TCP
+```
+
+### Mover el Ingress al Master (recomendado)
+
+Por defecto Kubernetes puede programar el pod del Ingress en cualquier nodo. Para garantizar estabilidad, forzarlo al Master:
+
+```bash
+kubectl patch deployment ingress-nginx-controller   -n ingress-nginx   --type=json   -p='[
+    {"op":"add","path":"/spec/template/spec/tolerations","value":[
+      {"key":"node-role.kubernetes.io/control-plane","operator":"Exists","effect":"NoSchedule"}
+    ]},
+    {"op":"add","path":"/spec/template/spec/nodeSelector","value":{
+      "kubernetes.io/hostname":"k8s-master"
+    }}
+  ]'
+
+# Verificar que está en el Master
+kubectl get pods -n ingress-nginx -o wide
+```
+
+> La misma técnica aplica a cualquier deployment crítico (phpMyAdmin, cert-manager) que deba ejecutarse en el Master.
+
+---
 
 ### 4.1 Verificación del Ingress Controller
 
@@ -416,27 +417,74 @@ metadata:
   name: letsencrypt-prod
 spec:
   acme:
-    # Servidor ACME de producción de Let's Encrypt
     server: https://acme-v02.api.letsencrypt.org/directory
-    # Email para notificaciones de expiración
-    email: <tu-email@dominio.com>
-    # Secret donde se almacena la clave privada de la cuenta ACME
+    email: tu@email.com
     privateKeySecretRef:
       name: letsencrypt-prod
     solvers:
-    # Método de validación: HTTP-01 (verifica el dominio via HTTP)
     - http01:
         ingress:
           class: nginx
 ```
 
 ```bash
-# Aplicar el ClusterIssuer
-kubectl apply -f clusterissuer.yaml
+kubectl apply -f k8s/letsencrypt-issuer.yaml
 
-# Verificar que está listo (READY debe ser True)
+# Verificar
 kubectl get clusterissuer
-kubectl describe clusterissuer letsencrypt-prod | grep -A 5 "Conditions"
+# letsencrypt-prod   True
+```
+
+Con el ClusterIssuer activo, cert-manager obtiene y renueva los certificados automáticamente mediante el challenge HTTP-01.
+
+**Ejemplo:** `k8s/ingress-principal.yaml`
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: meu-ingress
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - meu-project.me
+    - www.meu-project.me
+    secretName: meu-project-tls
+  rules:
+  - host: meu-project.me
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: meu-svc
+            port:
+              number: 80
+  - host: www.meu-project.me
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: meu-svc
+            port:
+              number: 80
+```
+
+```bash
+kubectl apply -f k8s/ingress-principal.yaml
+
+# Seguir el estado del certificado
+kubectl get certificate
+kubectl describe certificate meu-project-tls
+# Status: Ready = True  (puede tardar 1-2 minutos)
 ```
 
 ### 5.3 Recurso Certificate
@@ -545,8 +593,6 @@ kubectl delete certificaterequest -n default \
   $(kubectl get certificaterequest -n default -o name)
 ```
 
-> ⚠️ **Tarea pendiente de automatización:** Tras cada renovación automática cert-manager actualiza el Secret de Kubernetes, pero los ficheros `tls.crt` y `tls.key` del directorio `~/nginx-docker/certs/` **no se actualizan automáticamente**. Es necesario volver a ejecutar el proceso de extracción (Sección 6) y recargar NGINX. Se recomienda automatizar esto con un CronJob de Kubernetes o un script en el host.
-
 ---
 
 ## 6. Integración del Certificado en NGINX Docker
@@ -571,7 +617,7 @@ kubectl get secret meu-project-tls -n default \
 ls -la ~/nginx-docker/certs/
 ```
 
-> ⚠️ Usar siempre `base64 --decode` (flag larga). La flag corta `base64 -d` en algunas versiones de Ubuntu puede procesar incorrectamente los saltos de línea y generar ficheros corruptos que NGINX no puede cargar.
+> Usar siempre `base64 --decode` (flag larga). La flag corta `base64 -d` en algunas versiones de Ubuntu puede procesar incorrectamente los saltos de línea y generar ficheros corruptos que NGINX no puede cargar.
 
 ### 6.2 Verificación de integridad del certificado
 
@@ -582,7 +628,7 @@ Antes de reiniciar el contenedor, verificar que los ficheros son válidos y que 
 openssl x509 -in ~/nginx-docker/certs/tls.crt -noout -subject -issuer -dates
 
 # Verificar que cert y key son una pareja válida
-# ⚠️ Los dos hashes md5sum DEBEN SER IDÉNTICOS
+# Los dos hashes md5sum DEBEN SER IDÉNTICOS
 openssl x509 -noout -modulus -in ~/nginx-docker/certs/tls.crt | md5sum
 openssl rsa  -noout -modulus -in ~/nginx-docker/certs/tls.key | md5sum
 ```
@@ -599,8 +645,6 @@ notAfter =Jul 20 16:29:51 2026 GMT
 ```
 
 Si los hashes son distintos, la extracción falló y hay que repetir el paso 6.1.
-
-> 📸 **[CAPTURA SUGERIDA]** Output del `openssl x509` mostrando `CN=meu-project.me`, el emisor `Let's Encrypt` y las fechas de validez, junto con los dos `md5sum` idénticos.
 
 ### 6.3 Arranque del contenedor con los certificados
 
@@ -667,7 +711,45 @@ curl -v https://meu-project.me/ 2>&1 | grep -E "subject|issuer|< HTTP|SSL connec
 
 ---
 
-## 8. Apéndices
+## 8. phpMyAdmin con whitelist IP
+
+El acceso a phpMyAdmin se restringe por IP pública mediante la anotación `whitelist-source-range`.
+
+**Archivo:** `k8s/phpmyadmin/phpmyadmin-ingress.yaml`
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: phpmyadmin-ingress
+  namespace: default
+  annotations:
+    nginx.ingress.kubernetes.io/whitelist-source-range: "54.163.235.144/32"
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: pma.meu-project.me
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: phpmyadmin-service
+            port:
+              number: 80
+```
+
+```bash
+kubectl apply -f k8s/phpmyadmin/phpmyadmin-ingress.yaml
+
+# Actualizar la IP si cambia (AWS Academy reinicia las IPs)
+kubectl annotate ingress phpmyadmin-ingress   nginx.ingress.kubernetes.io/whitelist-source-range="NUEVA_IP/32"   --overwrite
+```
+
+> Las IPs de Calico (`192.168.x.x`) son IPs internas de pods y bypasan el whitelist — es comportamiento esperado dentro del clúster.
+
+## 9. Apéndices
 
 ### Apéndice A: Resolución de problemas comunes
 
@@ -735,13 +817,6 @@ echo | openssl s_client -connect meu-project.me:443 2>/dev/null \
   | openssl x509 -noout -subject -dates
 ```
 
----
-
-Aquí tienes el apartado listo para copiar y pegar en tu documentación:
-
-***
-
-```markdown
 ---
 
 ## 9. Troubleshooting
