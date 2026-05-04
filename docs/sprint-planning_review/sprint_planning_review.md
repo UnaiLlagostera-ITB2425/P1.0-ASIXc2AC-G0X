@@ -157,6 +157,10 @@ El objetivo principal de este sprint ya no es “hacer más cosas”, sino **cer
 
 Si conseguimos eso, consideraremos que el proyecto está bien encaminado y que hemos sabido adaptarnos a las limitaciones reales del calendario.
 
+<div align="center">
+  <img src="../../media/sprint_planning_2.png" alt="Tablero de tareas del Sprint 1" />
+</div>
+
 ***
 
 ## Sprint Planning 3 (pendiente)
