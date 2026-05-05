@@ -66,10 +66,19 @@ Antes de entrar en las soluciones, es útil conocer dos términos clave de Kuber
 
 Snapshots nativos hacia S3 combinados con mysqldump programado cubren el requisito de backups sin software adicional.
 
+**Almacenamiento dentro del clúster — NFS para datos de clientes (StorageClass nfs-client):** Se adopta NFS Local como StorageClass para los volúmenes compartidos entre pods de clientes, servido desde el propio EC2 DDBB (/srv/nfs/clientes), por las siguientes razones:
+- **Acceso RWX desde todos los nodos:** Permite que varios pods en distintos nodos lean y escriban simultáneamente, necesario para la plataforma multicliente.
+
+- **Sin dependencia de permisos IAM:** No requiere roles ni políticas IAM de AWS, compatible con las restricciones de AWS Academy Learner Lab.
+
+- **Reutilización del EC2 DDBB:** El servidor NFS corre en la misma instancia que MariaDB, sin infraestructura adicional.
+
+- **Integración vía Helm:** el NFS Subdir External Provisioner crea la StorageClass nfs-client dentro del clúster apuntando al share NFS del EC2 DDBB.
+
 **Almacenamiento dentro del clúster — StorageClass para pods y PVCs:** Se adopta Local Path Provisioner como StorageClass para los volúmenes persistentes dentro del clúster K3s, por las siguientes razones:
 - **Restricciones IAM de AWS Academy:** el EBS CSI Driver requiere crear roles y políticas IAM que las cuentas Learner Lab tienen bloqueados (iam:CreateRole, iam:CreatePolicy). No es posible instalarlo.
 - **Ya integrado en K3s:** Local Path Provisioner viene configurado por defecto como StorageClass en K3s sin instalación ni permisos adicionales.
 - **Sin overhead de recursos:** no consume RAM adicional en los nodos, crítico en instancias t3.small con 2 GB.
 - **Coherencia con el proyecto:** sigue el mismo principio aplicado en el resto de decisiones técnicas — usar tecnologías nativas o integradas en K3s sin añadir complejidad no justificada.
 
-**NF**S queda descartado por no ser adecuado para bases de datos y por introducir un punto único de fallo. **Longhorn** queda descartado por su overhead de memoria en instancias t3.small y porque sus ventajas de portabilidad no son relevantes en un entorno AWS. **EBS CSI Driver** queda descartado por las restricciones IAM de AWS Academy que impiden su instalación.
+**Longhorn** queda descartado por su overhead de memoria en instancias t3.small y porque sus ventajas de portabilidad no son relevantes en un entorno AWS. **EBS CSI Driver** queda descartado por las restricciones IAM de AWS Academy que impiden su instalación. **NFS** fue inicialmente descartado por no ser adecuado para bases de datos y por introducir un punto único de fallo; sin embargo, durante la implementación se incorporó como mejora para el almacenamiento compartido de clientes, un caso de uso donde sus limitaciones no aplican y su acceso RWX aporta valor real.
