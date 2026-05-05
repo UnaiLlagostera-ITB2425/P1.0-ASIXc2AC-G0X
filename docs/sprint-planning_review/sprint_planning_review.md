@@ -163,9 +163,63 @@ Si conseguimos eso, consideraremos que el proyecto está bien encaminado y que h
 
 ***
 
-## Sprint Planning 3 (pendiente)
+## ✍️ Ajuste de planificación – Eliminación del Sprint 3 (imprevisto de calendario)
 
-*El último sprint lo dedicaremos a los backups con Velero, la integración de GitOps con ArgoCD, el cumplimiento del RGPD, la redacción de manuales y la preparación de la presentación final.*
+*Fecha de la decisión: 05/05/2026*  
+*Asistentes a la reunión extraordinaria: Unai y Erick (los mismos que en el Sprint Planning 2)*
+
+Durante la ejecución del Sprint 2, y tras analizar el progreso real y los impedimentos arrastrados, hemos confirmado que **no será posible realizar un tercer sprint** antes de la fecha de entrega final del proyecto. Este imprevisto nos obliga a reajustar la estrategia de sprints sin modificar las actas de planificación y revisión ya escritas, sino añadiendo esta nota explicativa.
+
+### Contexto original (recordatorio)
+
+Tal y como se refleja en el *Sprint Planning 1*, el trabajo se había organizado en tres sprints:
+
+- **Sprint 1** → Fases 1 a 4 (planificación, infraestructura AWS, clúster K3s, MariaDB)
+- **Sprint 2** → Fases 5 a 8 (API, automatización, paneles, seguridad, observabilidad)
+- **Sprint 3** → Fases 9 a 11 (backups, GitOps, documentación legal y presentación)
+
+### Causas del imprevisto
+
+Una vez finalizado el *Sprint 1* y avanzada parte del *Sprint 2*, hemos identificado dos factores clave que han consumido más tiempo del estimado:
+
+1. **Problemas de conectividad entre instancias** durante el Sprint 1, documentados en la *Sprint Review 1*. Este problema retrasó la finalización completa de las fases 3 y 4, y parte de ese retraso se ha arrastrado al Sprint 2.
+2. **La complejidad real de la integración entre la API, la automatización y los paneles de control** ha resultado mayor que la estimación inicial. Aunque en el Sprint Planning 2 ya se previó una fusión de sprints, ahora vemos que incluso con esa fusión el tiempo restante es insuficiente para un tercer ciclo completo.
+
+### Decisión adoptada
+
+Para no comprometer la calidad del entregable ni dejar tareas a medio hacer, hemos decidido **suprimir formalmente el Sprint 3 y mover todas sus tareas al Sprint 2**. Esto significa que el Sprint 2 contendrá finalmente:
+
+- Sus fases originales (5 a 8)
+- Las fases 9 (backups con Velero)
+- La fase 10 (GitOps con ArgoCD) pasa a ser **opcional y se reducirá al mínimo imprescindible**
+- La fase 11 (documentación final, manuales y presentación)
+
+De esta forma, **el Sprint 2 se convierte en el sprint de cierre único**, y asumimos que:
+
+- No habrá una tercera reunión de planificación (Sprint Planning 3 queda cancelado).
+- No habrá Sprint Review 3.
+- Todo el trabajo restante debe concentrarse en un solo ciclo, que terminará el **12 de mayo de 2026** (fecha ya establecida para el Sprint 2).
+
+### Justificación principal (argumento extra)
+
+> *“No daría tiempo a realizar un tercer sprint con el suficiente margen de calidad. Dado que se trata de un imprevisto de calendario (no un error de planificación voluntario), hemos optado por reabsorber el contenido del Sprint 3 dentro del Sprint 2, aunque eso suponga una mayor densidad de trabajo. Preferimos entregar un proyecto completo y funcional con un sprint largo, que dejar tareas del tercer sprint sin hacer o mal terminadas.”*
+
+### Estado actual de los sprints
+
+- **Sprint Planning 1** (13/04/2026) → Se mantiene como está.
+- **Sprint Planning 2** (28/04/2026) → Ya refleja la unificación parcial (ver su contenido).
+- **Sprint Planning 3** → **Cancelado** (se sustituye por este ajuste).
+- **Sprint Review 1** (27/04/2026) → Se mantiene.
+- **Sprint Review 2** → Se realizará al final del Sprint 2 (12/05/2026) e incluirá la demostración de todo el sistema, incluyendo backups y documentación.
+- **Sprint Review 3** → No se realiza.
+
+> ℹ️ Las capturas de pantalla de los tableros y reuniones ya incluidas en los *Sprint Planning 1 y 2* siguen siendo válidas. No se añaden nuevas imágenes para este ajuste, ya que se trata de una decisión organizativa reflejada por escrito.
+
+***
+
+## Sprint Planning 3 (cancelado)
+
+*El tercer sprint previsto inicialmente ha sido cancelado debido al imprevisto de calendario documentado en la sección anterior. Todas sus tareas se han integrado en el Sprint 2.*
 
 ***
 
@@ -264,10 +318,10 @@ En resumen, terminamos este Sprint 1 con una base de trabajo mucho más sólida 
 
 ## Sprint Review 2 (pendiente)
 
-*Resultados del segundo sprint, con demostración de la API funcionando y los paneles de control.*
+*Resultados del segundo sprint, con demostración de la API funcionando, los paneles de control, los backups y la documentación final.*
 
 ***
 
-## Sprint Review 3 (pendiente)
+## Sprint Review 3 (cancelado)
 
-*Cierre del proyecto, presentación de toda la documentación y lecciones aprendidas.*
+*No se realiza al haber sido cancelado el Sprint 3. Todo el cierre del proyecto se gestiona en el Sprint Review 2.*
