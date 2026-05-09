@@ -6,7 +6,7 @@ La infraestructura se distribuye en tres cuentas AWS Educate independientes. Cad
 
 | Instancia  | Tipo      | IP Privada | Subred       | Rol                          |
 |------------|-----------|------------|--------------|------------------------------|
-| ec2-master | t3.medium | 10.0.1.136 | 10.0.0.0/16  | Kubernetes Master (Cuenta A) |
+| ec2-master | t3.medium | 10.0.1.118 | 10.0.0.0/16  | Kubernetes Master (Cuenta A) |
 | ec2-worker | t3.medium | 10.1.2.96  | 10.1.0.0/16  | Kubernetes Worker (Cuenta B) |
 | ec2-ddbb   | t3.small  | 10.2.2.154 | 10.2.2.0/24  | MariaDB dedicado (Cuenta C)  |
 
