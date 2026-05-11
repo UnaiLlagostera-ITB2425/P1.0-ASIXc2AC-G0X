@@ -1,6 +1,6 @@
 # Cumplimiento RGPD
 
-> ⚠️ **Nota:** Esta fase recoge las **propuestas técnicas** del equipo para cumplir con el RGPD. Por restricciones de tiempo no han sido implementadas en el alcance actual del proyecto, pero quedan documentadas como hoja de ruta para una versión futura del SaaS.
+> **Nota:** Esta fase recoge las **propuestas técnicas** del equipo para cumplir con el RGPD. Por restricciones de tiempo no han sido implementadas en el alcance actual del proyecto, pero quedan documentadas como hoja de ruta para una versión futura del SaaS.
 
 ---
 
@@ -58,10 +58,10 @@ Dado que el SaaS despliega webs para múltiples clientes, la forma más eficient
 
 | Tipo | ¿Requiere consentimiento? |
 |------|--------------------------|
-| Estrictamente necesarias (sesión, CSRF) | ❌ No |
-| Funcionales (preferencias de idioma) | ✅ Sí |
-| Analíticas (Google Analytics) | ✅ Sí |
-| Marketing (Facebook Pixel, remarketing) | ✅ Sí |
+| Estrictamente necesarias (sesión, CSRF) | No |
+| Funcionales (preferencias de idioma) | Sí |
+| Analíticas (Google Analytics) | Sí |
+| Marketing (Facebook Pixel, remarketing) | Sí |
 
 ### Cómo se podría implementar
 
