@@ -30,7 +30,7 @@ Inicialmente se consideraron Flask y Django, pero ambos fueron descartados por r
 |-----------|--------------------|----------|
 | **Flask** | Validación de esquemas mediante librerías third-party | 28% en parsing JSON |
 | **Django** | ORM innecesario para caso stateless | 45% memoria + 2.4x latencia |
-| **FastAPI** | ✅ Seleccionado: validación Pydantic + Swagger automático | 1200 req/seg |
+| **FastAPI** | Seleccionado: validación Pydantic + Swagger automático | 1200 req/seg |
 
 **FastAPI** se seleccionó por:
 - Rendimiento nativo (1200 req/seg vs 400 Flask)
@@ -77,12 +77,12 @@ T+3.42s: Let's Encrypt → CertificateRequest → Secret acme-tls ✓
 ### Namespace por cliente (vs single namespace multi-tenant)
 
 ```text
-Single namespace ❌
+Single namespace 
 ├── Resource contention → acme pod mata beta pod
 ├── NetworkPolicy complejo → 1000 reglas
 └── Cost allocation imposible
 
-Namespace por cliente ✅  
+Namespace por cliente  
 ├── CPU/Memory hard limits → aislamiento total
 ├── NetworkPolicy implícito → 0 config
 ├── kubectl port-forward -n cliente-acme
