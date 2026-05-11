@@ -31,16 +31,19 @@ curl -X POST https://api.meu-project.me/provision \
     "db_name": "db_acme",
     "plan": "enterprise"
   }'
+```
+
 Si no se envía el campo plan, se usa "basic" por defecto.
 
 Verificación de recursos asignados
 Para comprobar que el pod tiene los límites correspondientes al plan:
 
-bash
+```bash
 kubectl describe pod -n cliente-acme | grep -A5 "Limits\|Requests"
 Salida esperada para plan enterprise:
+```
 
-text
+```text
 Limits:
   cpu:     100m
   memory:  256Mi
@@ -49,15 +52,19 @@ Requests:
   memory:  128Mi
 Personalización de los valores de los planes
 Si se necesitan ajustes (por ejemplo, máquinas más potentes o recursos diferentes), editar el script new-client.sh y modificar las variables dentro del case:
+```
 
-bash
+```bash
 nano ~/saas-hosting/scripts/new-client.sh
 Ejemplo para cambiar el plan pro a CPU=200m, RAM=512Mi:
+```
 
-bash
+```bash
   pro)
     CPU_REQ="100m"; CPU_LIM="200m"; MEM_REQ="256Mi"; MEM_LIM="512Mi"
     ;;
+```
+
 Luego reiniciar la API: sudo systemctl restart saas-api.
 
 Notas de implementación
@@ -68,7 +75,3 @@ El template YAML (cliente-template.yaml) contiene las variables __CPU_REQ__, __C
 No se requiere modificar el main.py para añadir nuevos planes más allá de cambiar los valores en el script.
 
 El flujo completo (incluyendo la creación de la base de datos) sigue siendo el mismo, solo se han añadido los límites de recursos al pod.
-
-text
-
-Así ya tienes **un documento independiente y autocontenido** que puedes añadir como apéndice o como nueva sección en tu documentación principal. Si prefieres que lo integre completamente con el documento anterior, dímelo y lo reescribo.
