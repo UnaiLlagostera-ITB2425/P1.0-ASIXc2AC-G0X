@@ -9,7 +9,6 @@ número de clientes sin crear un usuario MariaDB por cada uno.
 ## Contexto de la arquitectura
 | Elemento              | Valor                                         |
 |-----------------------|-----------------------------------------------|
-| IP privada            | 10.2.2.191                                    |
 | Servidor LDAP         | OpenLDAP `slapd` 2.6.10 — escucha en `ldap:///` y `ldapi:///` |
 | Base DN               | `dc=meu,dc=local`                             |
 | OU usuarios           | `ou=People,dc=meu,dc=local`                   |

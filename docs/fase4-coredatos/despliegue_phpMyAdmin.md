@@ -29,7 +29,7 @@ k8s/
 
 ## Manifiestos
    - phpmyadmin-deployment.yaml
-     ```sql
+     ```yaml
      apiVersion: apps/v1
      kind: Deployment
      metadata:
@@ -58,7 +58,7 @@ k8s/
      ```
 
    - phpmyadmin-service.yaml
-     ```sql
+     ```yaml
      apiVersion: v1
      kind: Service
      metadata:
@@ -73,7 +73,7 @@ k8s/
      ```
 
    - phpmyadmin-ingress.yaml
-     ```sql
+     ```yaml
     apiVersion: networking.k8s.io/v1
     kind: Ingress
     metadata:
@@ -97,14 +97,14 @@ k8s/
      ```
 
 ## Pasos de despliegue
-```sql
+```bash
 kubectl apply -f k8s/phpmyadmin/phpmyadmin-deployment.yaml
 kubectl apply -f k8s/phpmyadmin/phpmyadmin-service.yaml
 kubectl apply -f k8s/phpmyadmin/phpmyadmin-ingress.yaml
 ```
 
 - Verificar que el pod está corriendo:
-```sql
+```bash
 kubectl get pods -l app=phpmyadmin
 # → STATUS debe ser Running
 

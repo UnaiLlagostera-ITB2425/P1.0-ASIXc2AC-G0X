@@ -1,17 +1,15 @@
 # Desplegar Clúster MariaDB en Kubernetes
 
 ## 1. Descripción
-
-Despliegue de MariaDB como recurso gestionado dentro del clúster K3s mediante un **StatefulSet** y un **PVC**, para garantizar estabilidad de identidad de pod y persistencia de datos. Esta tarea se ejecuta desde el nodo Master y se integra con la base de datos centralizada desplegada en la EC2 DDBB de Manuel (`10.2.2.154`).
+Despliegue de MariaDB como recurso gestionado dentro del clúster K3s mediante un **StatefulSet** y un **PVC**, para garantizar estabilidad de identidad de pod y persistencia de datos. Esta tarea se ejecuta desde el nodo Master y se integra con la base de datos centralizada desplegada en la EC2 DDBB de Manuel (`10.2.2.191`).
 
 ---
 
 ## 2. Contexto de la arquitectura
-
 | Elemento         | Valor                                                |
 |------------------|------------------------------------------------------|
 | Instancia        | ec2-ddbb — t3.small, subred privada 10.2.2.0/24      |
-| IP privada       | 10.2.2.154                                           |
+| IP privada       | 10.2.2.191                                           |
 | Puerto           | 3306                                                 |
 | Base de datos    | plataforma_hosting                                   |
 | Usuario          | meu_admin                                            |
@@ -21,7 +19,6 @@ Despliegue de MariaDB como recurso gestionado dentro del clúster K3s mediante u
 ---
 
 ## 3. Decisiones aplicadas
-
 - El StatefulSet se despliega en el clúster K3s del Master (Cuenta A).
 - La persistencia real de datos **no** recae sobre el PVC de Kubernetes, sino sobre el **EBS gp3 de la EC2 DDBB**.
 - El PVC actúa como referencia lógica dentro del clúster para mantener compatibilidad con el patrón StatefulSet estándar de Kubernetes.
@@ -30,7 +27,6 @@ Despliegue de MariaDB como recurso gestionado dentro del clúster K3s mediante u
 ---
 
 ## 4. StorageClass — Verificación
-
 ```bash
 kubectl get storageclass
 ```
@@ -44,7 +40,6 @@ local-path (default)   rancher.io/local-path   Delete          WaitForFirstConsu
 > **WaitForFirstConsumer** es el comportamiento correcto — el PVC permanece en `Pending` hasta que un pod lo solicite, evitando que el volumen se cree en el nodo incorrecto.
 
 ### Test de funcionamiento del StorageClass
-
 ```bash
 # 1. Crear PVC de prueba
 kubectl apply -f - <<EOF
@@ -93,7 +88,6 @@ kubectl delete pvc test-pvc
 ---
 
 ## 5. Prerrequisitos
-
 Verificar todos los puntos antes de desplegar:
 
 - [ ] Secret `mariadb-credentials` aplicado: `kubectl apply -f secret-mariadb.yaml`
@@ -105,7 +99,6 @@ Verificar todos los puntos antes de desplegar:
 > Los manifiestos `secret-mariadb.yaml` y `configmap-mariadb.yaml` son preparados por Manuel como artefactos de integración. Su creación se documenta en el **Manual de Secrets BBDD y ConfigMap**.
 
 ### Verificar conectividad antes de desplegar
-
 ```bash
 # Desde el Master
 bash -c "timeout 5 bash -c 'echo > /dev/tcp/10.2.2.154/3306' && echo 'CONECTADO' || echo 'TIMEOUT'"
@@ -118,7 +111,6 @@ kubectl run test-conn --image=busybox --rm -it --restart=Never -- \
 ---
 
 ## 6. Manifiesto Service + Endpoints externo
-
 **Archivo:** `k8s/database/mariadb-external-service.yaml`
 
 Permite que los pods del clúster resuelvan `mariadb-externo` y se conecten a la EC2 DDBB sin hardcodear la IP en el código de la aplicación.
@@ -159,7 +151,6 @@ kubectl describe service mariadb-externo
 ---
 
 ## 7. Manifiesto StatefulSet + PVC
-
 **Archivo:** `k8s/database/mariadb-statefulset.yaml`
 
 ```yaml
@@ -235,12 +226,11 @@ kubectl get pods -w
 ---
 
 ## 8. Verificación de conectividad
-
 ```bash
 # Verificar que el pod puede acceder a MariaDB externo
 kubectl exec -it meu-project-0 -- sh -c \
   "apk add --no-cache mariadb-client 2>/dev/null && \
-   mariadb -h 10.2.2.154 -u meu_admin -p plataforma_hosting -e 'SELECT 1;'"
+   mariadb -h 10.2.2.191 -u meu_admin -p plataforma_hosting -e 'SELECT 1;'"
 
 # Alternativa más rápida con netcat
 kubectl exec -it meu-project-0 -- sh -c \
@@ -250,19 +240,17 @@ kubectl exec -it meu-project-0 -- sh -c \
 ---
 
 ## 9. Estado del despliegue
-
-- [x] Secret `mariadb-credentials` aplicado
-- [x] ConfigMap `mariadb-config` aplicado
-- [x] Manifiesto Service + Endpoints externo desplegado
-- [x] Manifiesto StatefulSet + PVC desplegado
-- [x] Conectividad verificada desde pod al MariaDB de la EC2 DDBB (`10.2.2.154:3306`)
+- Secret `mariadb-credentials` aplicado
+- ConfigMap `mariadb-config` aplicado
+- Manifiesto Service + Endpoints externo desplegado
+- Manifiesto StatefulSet + PVC desplegado
+- Conectividad verificada desde pod al MariaDB de la EC2 DDBB (`10.2.2.191:3306`)
 
 ---
 
 # Secrets BBDD y ConfigMap
 
 ## 1. Descripción
-
 Creación de los artefactos de configuración y credenciales para la base de datos centralizada:
 
 - **Secret** — credenciales sensibles cifradas en base64, consumidas por el StatefulSet de Kubernetes.
@@ -275,7 +263,6 @@ La tarea se divide en dos partes:
 ---
 
 ## 2. Configuración del servidor — my.cnf
-
 **Archivo:** `/etc/mysql/mariadb.conf.d/50-server.cnf`, bloque `[mariadb]`
 
 ```ini
@@ -291,7 +278,6 @@ max_heap_table_size          = 64M
 ```
 
 ### Justificación de parámetros
-
 | Parámetro                      | Valor              | Motivo                                                          |
 |--------------------------------|--------------------|-----------------------------------------------------------------|
 | `skip-name-resolve`            | ON                 | Evita resolución DNS inversa en red privada con VPC Peering     |
@@ -306,7 +292,6 @@ max_heap_table_size          = 64M
 ---
 
 ## 3. Pasos de configuración en ec2-ddbb
-
 ```bash
 # 1. Copia de seguridad del archivo original
 sudo cp /etc/mysql/mariadb.conf.d/50-server.cnf \
@@ -322,7 +307,6 @@ sudo systemctl status mariadb
 ```
 
 ### Verificación de variables aplicadas
-
 ```sql
 -- Ejecutar dentro de MariaDB
 SHOW VARIABLES LIKE 'skip_name_resolve';         -- ON
@@ -336,7 +320,6 @@ SHOW VARIABLES LIKE 'innodb_file_per_table';     -- ON
 ---
 
 ## 4. Secret — secret-mariadb.yaml
-
 Los valores deben estar codificados en **base64**. Nunca escribir contraseñas en texto plano en los manifiestos.
 
 ```bash
@@ -347,7 +330,6 @@ echo -n "password_usuario_aqui" | base64
 ```
 
 **Archivo:** `k8s/secrets/secret-mariadb.yaml`
-
 ```yaml
 apiVersion: v1
 kind: Secret
@@ -387,7 +369,6 @@ MARIADB_USER:           9 bytes
 ---
 
 ## 5. ConfigMap — configmap-mariadb.yaml
-
 **Archivo:** `k8s/configmaps/configmap-mariadb.yaml`
 
 ```yaml
@@ -442,12 +423,10 @@ volumes:
 
 ## 6. Estado
 
-- [x] `my.cnf` aplicado y verificado en EC2 DDBB
-- [x] MariaDB reiniciado correctamente — `active (running)`
-- [x] Todos los parámetros verificados con `SHOW VARIABLES`
-- [x] `secret-mariadb.yaml` preparado y entregado a Erick
-- [x] `configmap-mariadb.yaml` preparado y entregado a Erick
-- [x] `kubectl apply -f secret-mariadb.yaml` — aplicado en clúster
-- [x] `kubectl apply -f configmap-mariadb.yaml` — aplicado en clúster
-
----
+- `my.cnf` aplicado y verificado en EC2 DDBB
+- MariaDB reiniciado correctamente — `active (running)`
+- Todos los parámetros verificados con `SHOW VARIABLES`
+- `secret-mariadb.yaml` preparado y entregado a Erick
+- `configmap-mariadb.yaml` preparado y entregado a Erick
+- `kubectl apply -f secret-mariadb.yaml` — aplicado en clúster
+- `kubectl apply -f configmap-mariadb.yaml` — aplicado en clúster

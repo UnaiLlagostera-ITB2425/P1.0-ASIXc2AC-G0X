@@ -12,10 +12,10 @@ curl -I https://meu-project.me
 Demuestra que la red inter-cuenta funciona correctamente.
 ```sql
 # Desde la EC2 Master (Erick) → hacer ping a la EC2 DDBB de Manuel
-ping 10.2.2.154
+ping 10.2.2.191
 
 # Desde un Worker (Unai) → hacer ping a la EC2 DDBB
-ping 10.2.2.154
+ping 10.2.2.191
 ```
 - **Resultado esperado:** respuesta de ping desde ambos nodos hacia la BBDD.
 
@@ -23,7 +23,7 @@ ping 10.2.2.154
 Demuestra que MariaDB acepta conexiones desde los nodos del clúster
 ```sql
 # Desde un Worker o Master hacia la BBDD
-mariadb -h 10.2.2.154 -u app_admin -p plataforma_hosting
+mariadb -h 10.2.2.191 -u app_admin -p plataforma_hosting
 ```
 - **Resultado esperado:** acceso a la base plataforma_hosting sin errores.
 

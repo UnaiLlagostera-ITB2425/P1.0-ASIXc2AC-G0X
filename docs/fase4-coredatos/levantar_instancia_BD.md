@@ -63,14 +63,14 @@ Instalación, securización y configuración de MariaDB directamente en el siste
 
 ## Configuración inicial aplicada
 - Instalación de MariaDB
-  ```sql
+  ```bash
   sudo apt update
   sudo apt install mariadb-server
   ```
   ![Instalacion MariaDB](../../media/instalacion_mariaDB.png)
 
 - Arranque y habilitación del servicio
-  ```sql
+  ```bash
   sudo systemctl start mariadb
   sudo systemctl enable mariadb
   sudo systemctl status mariadb
@@ -78,7 +78,7 @@ Instalación, securización y configuración de MariaDB directamente en el siste
   ![Arranque servicio](../../media/arranque_servicio_mariaDB.png)
 
 - Securización inicial
-  ```sql
+  ```bash
   sudo mysql_secure_installation
   ```
   ![securizacion inicial](../../media/securizacion_inicial_mariaDB.png)
@@ -90,7 +90,7 @@ Instalación, securización y configuración de MariaDB directamente en el siste
     - Tablas de privilegios recargadas
 
 - Configuración de red — bind-address
-  ```sql
+  ```ini
   # Archivo: /etc/mysql/mariadb.conf.d/50-server.cnf
   bind-address = 10.2.2.X   # IP privada de la instancia
   ```
@@ -126,7 +126,7 @@ Creación, adjunción y montaje de un volumen EBS gp3 dedicado de 10 GiB en la i
 ## Pasos ejecutados
   - Creación del volumen en AWS: Ya añadido en la creación de la instancia.
   - Comandos usados:
-    ```sql
+    ```bash
     # Verificación del disco en el SO
     lsblk
     
@@ -165,7 +165,7 @@ Creación, adjunción y montaje de un volumen EBS gp3 dedicado de 10 GiB en la i
 Además del almacenamiento local de MariaDB, se habilitó un servicio NFS en la misma instancia para compartir datos de clientes en la plataforma.
 
 ## Pasos ejecutados
-```sql
+```bash
 # Instalación y preparación
 sudo apt-get install -y nfs-kernel-server
 sudo mkdir -p /srv/nfs/clientes
