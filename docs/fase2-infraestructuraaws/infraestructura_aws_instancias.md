@@ -1,4 +1,4 @@
-# Manual de Levantamiento de Infraestructura AWS
+# Levantamiento y Securización de Infraestructura AWS
 
 ## 1. Arquitectura General
 
