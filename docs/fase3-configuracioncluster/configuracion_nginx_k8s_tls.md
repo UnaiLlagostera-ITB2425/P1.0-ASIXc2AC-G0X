@@ -1,4 +1,4 @@
-# Manual de Configuración: Kubernetes + Calico + Ingress NGINX + Certificados TLS
+# Configuración: Kubernetes + Calico + Ingress NGINX + Certificados TLS
 
 ## 1. Arquitectura General
 
