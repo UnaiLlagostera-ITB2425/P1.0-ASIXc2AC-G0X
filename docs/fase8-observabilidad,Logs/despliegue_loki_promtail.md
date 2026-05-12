@@ -6,11 +6,11 @@ Centralizar los logs de pods, Ingress y sistema del clúster en Loki, con Promta
 ELK fue descartado por su alto consumo de memoria, incompatible con las instancias `t3.small` del clúster. Loki indexa solo metadatos y no el contenido de los logs, lo que lo hace adecuado para este entorno con RAM limitada. Promtail es el agente oficial de Loki, se despliega como DaemonSet y recoge logs directamente de `/var/log/pods/`.
 
 ## Stack desplegado
-| Componente             | Herramienta                  | Nodo            |
-| ---------------------- | ---------------------------- | --------------- |
-| Almacenamiento de logs | Loki `3.6.7` (SingleBinary)  | `k8s-submaster` |
-| Agente recolector      | Promtail `3.5.1` (DaemonSet) | `k8s-submaster` + `worker1` |
-| Visualización          | Grafana (ya desplegado)      | `k8s-submaster` |
+| Componente             | Herramienta    | Nodo                    |
+| ---------------------- | -------------- | ----------------------- |
+| Almacenamiento de logs | Loki 3.6.7     | k8s-submaster           |
+| Agente recolector      | Promtail 3.5.1 | k8s-submaster + worker2 |
+| Visualización          | Grafana        | k8s-submaster           |
 
 
 ## Loki
@@ -136,7 +136,6 @@ Pendiente de realizar una vez Grafana sea accesible vía HTTPS:
 3. Save & Test → `Data source connected`
 
 ## Estado
-- Loki desplegado en modo SingleBinary en `k8s-submaster` con persistencia `local-path`
-- Promtail corriendo como DaemonSet en `k8s-submaster` y `worker1`
-- Logs de pods y Nginx-Ingress recolectados via ficheros estáticos
-- Integración Loki datasource en Grafana pendiente — requiere acceso HTTPS a Grafana
+- Loki desplegado correctamente en k8s-submaster con persistencia local-path.
+- Promtail desplegado y funcionando en los nodos del clúster.
+- La integración con Grafana queda lista para usar una vez se añada el datasource, y pero el despliegue y la recolección ya están validados.

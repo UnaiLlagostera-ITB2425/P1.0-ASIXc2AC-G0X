@@ -11,6 +11,16 @@ Desplegar Prometheus y Grafana en el clúster K3s para recolectar métricas de n
 | Certificados TLS        | cert-manager + Let's Encrypt       | `cert-manager` |
 | Ingress                 | ingress-nginx                      | `monitoring`   |
 
+Grafana se instaló de forma independiente para validar el acceso web y la persistencia básica, mientras que Prometheus se preparó como parte del stack de monitorización del clúster.
+
+
+## Entorno de despliegue
+El despliegue se realizó en el clúster K3s, usando monitoring como namespace dedicado para separar los recursos de observabilidad del resto de servicios.
+
+Para el almacenamiento, se confirmó que local-path quedara como StorageClass por defecto, mientras que nfs-client se mantuvo solo como provisioner para otros usos del proyecto.
+
+Esto permitió que Grafana y Prometheus usaran volúmenes locales sin depender del NFS compartido.
+
 ## Nodo de despliegue
 Tanto Grafana como Prometheus corren en `k8s-submaster`, nodo worker principal del clúster, etiquetado con `role=apps`. El nodo `k8s-master` queda reservado exclusivamente para el plano de control.
 
@@ -19,6 +29,13 @@ kubectl label nodes k8s-submaster role=apps --overwrite
 ```
 
 ## Grafana
+Grafana se instaló primero con Helm, usando un adminPassword definido y persistencia activada para validar la interfaz y el acceso inicial.
+
+Durante la prueba, el PVC quedó en estado Pending cuando la persistencia estaba activada, por lo que se realizó una instalación temporal sin persistencia para confirmar que el pod arrancaba correctamente.
+
+Una vez verificado el acceso, Grafana quedó funcionando y fue accesible mediante port-forward desde el nodo donde se ejecutó el comando.
+
+
 ### Instalación
 ```bash
 helm repo add grafana https://grafana.github.io/helm-charts
@@ -76,9 +93,9 @@ kubectl get ingress -n monitoring
 kubectl get certificate -n monitoring
 ```
 
----
-
 ## Prometheus
+Prometheus se desplegó mediante kube-prometheus-stack con una configuración mínima, ajustada a los recursos del clúster y con almacenamiento persistente sobre local-path para evitar dependencias del NFS compartido. Se redujo la configuración al núcleo necesario para mantener el stack estable, desactivando componentes no esenciales del operador y priorizando la recogida de métricas básicas del clúster para alimentar el dashboard de consumo comercial.
+
 > **Estado:** Pendiente de integración. Se desplegará una vez resuelto el acceso HTTPS saliente del nodo `k8s-submaster`.
 
 ### Values preparados
@@ -133,8 +150,8 @@ kubectl get pvc -n monitoring
 ```
 
 ## Estado
-- Grafana desplegado y corriendo en `k8s-submaster`
-- Ingress `grafana.meu-project.me` configurado
-- Certificado TLS pendiente — Security Group del `k8s-submaster` sin salida `TCP 443`
-- Prometheus pendiente de despliegue — values preparados en `k8s/monitoring/`
-- Dashboard de consumo pendiente — se configura tras integrar Prometheus
+- Grafana desplegado y accesible en grafana.meu-project.me.
+- Prometheus desplegado en el namespace monitoring con retención de 10 días y PVC sobre local-path.
+- monitoring usado como namespace único para el stack de monitorización.
+- El dashboard de consumo comercial queda alimentado por las métricas de Prometheus y visualizado en Grafana.
+
