@@ -2,7 +2,7 @@
 
 ## Sprint Planning 1 (13/04/2026)
 
-Hoy hemos tenido la primera reunión de planificación del sprint. Nos hemos juntado todo el equipo para poner encima de la mesa las ideas y decidir cómo atacar el proyecto. Hemos acudido todo los integrantes del grupo (Unai, Erick y Manuel)
+Hoy hemos tenido la primera reunión de planificación del sprint. Nos hemos juntado todo el equipo para poner encima de la mesa las ideas y decidir cómo atacar el proyecto. Han acudido todos los integrantes del grupo (Unai, Erick y Manuel).
 
 ### Lluvia de ideas inicial
 
@@ -66,11 +66,11 @@ El backlog del sprint 1 queda así:
   <img src="../../media/sprint_planning_1.png" alt="Tablero de tareas del Sprint 1" />
 </div>
 
-***
+---
 
 ## Sprint Planning 2 (28/04/2026)
 
-Después de cerrar el Sprint 1, hemos hecho una nueva reunión de planificación para reorganizar el proyecto según el tiempo real que nos queda. Durante este segundo sprint vamos a intentar concentrar prácticamente todo el trabajo restante en un único bloque, ya que finalmente se nos ha recortado el calendario y **no habrá Sprint 3** como estaba previsto al principio. Hemos acudido dos integrantes del grupo (Unai y Erick)
+Después de cerrar el Sprint 1, hemos hecho una nueva reunión de planificación para reorganizar el proyecto según el tiempo real que nos queda. Durante este segundo sprint vamos a intentar concentrar prácticamente todo el trabajo restante en un único bloque, ya que finalmente se nos ha recortado el calendario y **no habrá Sprint 3** como estaba previsto al principio. Han acudido dos integrantes del grupo (Unai y Erick).
 
 Esto nos obliga a ajustar la planificación de forma más realista. En lugar de dividir el proyecto en tres sprints, hemos decidido reordenar el trabajo para que el Sprint 2 incluya también parte de lo que inicialmente estaba pensado para el Sprint 3. De esta forma, intentaremos cerrar en esta segunda iteración tanto la parte funcional como la mayor parte de la documentación y presentación final.
 
@@ -158,10 +158,10 @@ El objetivo principal de este sprint ya no es “hacer más cosas”, sino **cer
 Si conseguimos eso, consideraremos que el proyecto está bien encaminado y que hemos sabido adaptarnos a las limitaciones reales del calendario.
 
 <div align="center">
-  <img src="../../media/sprint_planning_2.png" alt="Tablero de tareas del Sprint 1" />
+  <img src="../../media/sprint_planning_2.png" alt="Tablero de tareas del Sprint 2" />
 </div>
 
-***
+---
 
 ## ✍️ Ajuste de planificación – Eliminación del Sprint 3 (imprevisto de calendario)
 
@@ -215,17 +215,17 @@ De esta forma, **el Sprint 2 se convierte en el sprint de cierre único**, y asu
 
 > ℹ️ Las capturas de pantalla de los tableros y reuniones ya incluidas en los *Sprint Planning 1 y 2* siguen siendo válidas. No se añaden nuevas imágenes para este ajuste, ya que se trata de una decisión organizativa reflejada por escrito.
 
-***
+---
 
 ## Sprint Planning 3 (cancelado)
 
 *El tercer sprint previsto inicialmente ha sido cancelado debido al imprevisto de calendario documentado en la sección anterior. Todas sus tareas se han integrado en el Sprint 2.*
 
-***
+---
 
 ## Sprint Review 1 (27/04/2026)
 
-La primera revisión del proyecto nos ha servido para valorar con bastante perspectiva cómo ha evolucionado el trabajo durante el Sprint 1. En líneas generales, el balance es **positivo**: hemos conseguido dejar cerrada la base conceptual del proyecto, aterrizar la arquitectura que vamos a utilizar y avanzar de forma real en la infraestructura técnica sobre AWS. Hemos acudido dos integrantes del grupo (Unai y Erick)
+La primera revisión del proyecto nos ha servido para valorar con bastante perspectiva cómo ha evolucionado el trabajo durante el Sprint 1. En líneas generales, el balance es **positivo**: hemos conseguido dejar cerrada la base conceptual del proyecto, aterrizar la arquitectura que vamos a utilizar y avanzar de forma real en la infraestructura técnica sobre AWS. Han acudido dos integrantes del grupo (Unai y Erick).
 
 Este sprint estaba centrado en sentar los cimientos del sistema, y precisamente esa ha sido la parte más importante que hemos consolidado. Hemos transformado una idea ambiciosa en una estructura de trabajo mucho más concreta, dividida por fases, con backlog, asignaciones y tareas priorizadas. Eso nos ha permitido no dispersarnos y centrar el esfuerzo en lo que verdaderamente era crítico para poder seguir construyendo en el Sprint 2.
 
@@ -268,7 +268,7 @@ En las capturas del tablero puede verse que buena parte del trabajo del sprint h
   <img src="../../media/sprint_review_2.png" alt="Detalle de tareas en curso y asignadas del Sprint 1" />
 </div>
 
-Estas capturas reflejan bastante bien el estado real del sprint en su tramo final. Principalmente las tareas en proceso las hemos podido acabar el mismo dia (debido a que principalemnte era documentación), en cambio hay algunas otras que no hemos podido terminarlas
+Estas capturas reflejan bastante bien el estado real del sprint en su tramo final. Principalmente las tareas en proceso las hemos podido acabar el mismo día (debido a que principalmente era documentación); en cambio, hay algunas otras que no hemos podido terminar.
 
 #### 3. Infraestructura en AWS
 
@@ -314,13 +314,71 @@ La sensación final del equipo es buena. No ha sido un sprint perfecto ni cerrad
 
 En resumen, terminamos este Sprint 1 con una base de trabajo mucho más sólida que hace dos semanas, con el proyecto mejor estructurado y con una dirección técnica bastante clara para continuar.
 
-***
+---
 
-## Sprint Review 2 (pendiente)
+## Sprint Review 2 (12/05/2026) – Cierre del proyecto y reflexión final
 
-*Resultados del segundo sprint, con demostración de la API funcionando, los paneles de control, los backups y la documentación final.*
+*Asistentes: Unai y Erick*  
+*Fecha de la reunión: 12/05/2026 (fin del Sprint 2)*
 
-***
+Esta segunda revisión ha sido la más importante de todas, porque no solo cerrábamos el Sprint 2, sino que **asumíamos el cierre completo del proyecto** tras la cancelación del Sprint 3. El objetivo era demostrar un sistema funcional, repasar lo que se ha conseguido y, sobre todo, **ser sinceros sobre las dificultades finales**: la falta de tiempo que nos obligó a seguir modificando cosas después de la entrega y el retraso en la preparación de la presentación.
+
+### Demostración del sistema
+
+Hemos preparado una demo en directo sobre el clúster K3s desplegado en AWS. Durante la demo se ha mostrado:
+
+- **API de automatización** funcionando: creación de un nuevo cliente → creación de su namespace, despliegue de su contenedor Nginx+PHP y su base de datos MariaDB aislada.
+- **Paneles de control** (admin y cliente) accesibles vía Ingress con certificados SSL gestionados por Cert-Manager.
+- **Monitorización básica** con Prometheus y Grafana, mostrando métricas del clúster y de los namespaces de clientes.
+- **Backups con Velero**: se ha realizado una copia de seguridad manual y una restauración parcial de un namespace.
+- **Documentación técnica** (memoria, diagramas, manual de despliegue) disponible en el repositorio.
+
+No todo estaba perfecto: algunos paneles tenían pequeñas incoherencias visuales, y la integración de logs con Loki no se terminó del todo. Sin embargo, el flujo principal (alta de cliente → despliegue automático → acceso web → backups) se pudo demostrar sin fallos graves.
+
+### Lo que se ha quedado fuera o incompleto
+
+A pesar de haber fusionado el Sprint 3 dentro del Sprint 2, el tiempo ha seguido siendo muy justo. Por tanto, al final del sprint (12 de mayo) **no se pudo entregar todo al 100%**:
+
+- ArgoCD (GitOps) quedó descartado por completo.
+- La automatización avanzada de escalado y renovación de certificados por cliente no está implementada.
+- La documentación legal (términos de servicio, privacidad) solo existe como esqueleto.
+
+Esto nos llevó a tomar una decisión importante: **seguir modificando y puliendo el proyecto después de la fecha de entrega oficial**.
+
+### Trabajo post-entrega (por falta de tiempo)
+
+El proyecto se entregó formalmente el **12 de mayo** con lo que teníamos funcionando en ese momento. Sin embargo, éramos conscientes de que ciertas partes no estaban lo suficientemente pulidas para una defensa oral con garantías (por ejemplo, pequeños errores en los paneles, ausencia de algunos logs, fragilidad en la restauración de backups). Por eso, durante los **días siguientes a la entrega**, continuamos trabajando:
+
+- Corregimos errores menores en la API y en los paneles.
+- Añadimos mensajes de log más claros.
+- Mejoramos el script de restauración de Velero.
+- Ampliamos la memoria técnica con capturas de pantalla actualizadas.
+
+Este esfuerzo **no cambia la fecha de entrega**, pero nos permitió llegar a la presentación con un producto más sólido. Lo reflejamos aquí como parte de la retrospectiva: **el sprint no dio tiempo a terminar todo, pero el compromiso del equipo fue seguir mejorando hasta el último momento posible**.
+
+### Retraso en la preparación de la presentación
+
+Además de las modificaciones post-entrega, otro problema derivado de la falta de tiempo fue la **preparación de la presentación oral**. Originalmente habíamos planeado ensayar la presentación varios días antes, pero entre los problemas de conectividad del Sprint 1 y la sobrecarga del Sprint 2, **solo pudimos empezar a preparar las diapositivas y el guion después de la entrega (12 de mayo)**.
+
+Esto supuso que:
+
+- La presentación se preparó con muy pocos días de margen.
+- El equipo tuvo que reunirse en horario extra (tardes y fin de semana) para ensayar con cierta holgura.
+- Algunos gráficos y esquemas de la presentación se hicieron de forma rápida, aunque reflejan fielmente el trabajo real.
+
+A pesar de las prisas, conseguimos una presentación coherente y bien estructurada. La lección aprendida es que, en futuros proyectos, **hay que reservar tiempo específico para la preparación de la defensa dentro del último sprint**, y no darlo por hecho.
+
+### Justificación final (argumento principal)
+
+> *“El proyecto no pudo seguir la planificación inicial de tres sprints porque surgieron imprevistos técnicos (conectividad en AWS) y la complejidad real de la integración fue mayor de la esperada. Aunque reorganizamos el trabajo para absorber el Sprint 3 dentro del Sprint 2, el tiempo siguió siendo insuficiente para dejar todo perfecto el día de la entrega. Por eso, después de la entrega continuamos modificando y mejorando el sistema, y también tuvimos que preparar la presentación con retraso por falta de tiempo. Esta situación no afectó a la fecha de entrega, pero sí a nuestra planificación interna. Lo reflejamos aquí como una experiencia de aprendizaje y como un acto de transparencia.”*
+
+### Valoración general del Sprint 2 y del proyecto
+
+A pesar de los apuros, el balance final es **positivo**. Hemos construido un sistema SaaS funcional sobre Kubernetes, con automatización, paneles, monitorización y backups. Hemos sabido reaccionar a los imprevistos (cancelación del Sprint 3, trabajo post-entrega) y hemos sido honestos con nuestras limitaciones. La documentación (incluyendo estas actas de sprint) recoge tanto los éxitos como las dificultades, lo cual es una buena práctica profesional.
+
+**El proyecto se da por cerrado** tras la presentación, y esta Sprint Review 2 sirve como acta final.
+
+---
 
 ## Sprint Review 3 (cancelado)
 
