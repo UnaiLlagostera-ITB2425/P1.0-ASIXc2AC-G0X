@@ -35,8 +35,8 @@ Este README está planteado como punto de entrada al proyecto. A medida que se c
 | Fase 6 | [`docs/fase6-frontend`](docs/06-frontend/) | Paneles de administración y cliente |
 | Fase 7 | [`docs/fase7-seguridad,pruebas`](docs/07-seguridad,pruebas/) | Seguridad, hardening y pruebas |
 | Fase 8 | [`docs/fase8-observabilidad,logs`](docs/08-observabilidad,logs/) | Observabilidad, métricas, logs y alertas |
-| Fase 9 | [`docs/fase10-gitops,ci,cd/index.md`](docs/09-gitops,ci,cd/) | GitOps, integración y despliegue continuo |
-| Fase 10 | [`docs/fase11-legal,documentacion/index.md`](docs/10-legal,documentacion/) | Documentación final, RGPD y presentación |
+| Fase 9 | [`docs/fase10-gitops,ci,cd`](docs/09-gitops,ci,cd/) | GitOps, integración y despliegue continuo |
+| Fase 10 | [`docs/fase11-legal,documentacion`](docs/10-legal,documentacion/) | Documentación final, RGPD y presentación |
 | Manuales | [`docs/manuales/`](docs/manuales/) | Guías de instalación, uso y administración |
 | Sprint Planning | [`docs/sprint-planning_review/`](docs/sprint-planning_review/) | Revisiones de sprint y planificación iterativa |
 
