@@ -27,17 +27,16 @@ Este README está planteado como punto de entrada al proyecto. A medida que se c
 
 | Bloque | Ruta | Contenido |
 |---|---|---|
-| Fase 1 | [`docs/fase1-planificacion,git,analisis/index.md`](docs/fase1-planificacion,git,analisis) | Planificación, análisis inicial, Git y decisiones base |
-| Fase 2 | [`docs/fase2-infraestructuraaws/index.md`](docs/fase2-infraestructuraaws) | Infraestructura en AWS, red, acceso y seguridad |
-| Fase 3 | [`docs/fase3-configuracioncluster/index.md`](docs/fase3-configuracioncluster) | Configuración del clúster Kubernetes y servicios base |
-| Fase 4 | [`docs/fase4-coredatos/index.md`](docs/fase4-coredatos/) | Core de datos, persistencia y base de datos |
-| Fase 5 | [`docs/fase5-api,automatizacion,planes/index.md`](docs/fase5-api,automatizacion,planes/) | API, automatización y gestión de planes |
-| Fase 6 | [`docs/fase6-frontend/index.md`](docs/fase6-frontend/) | Paneles de administración y cliente |
-| Fase 7 | [`docs/fase7-seguridad,pruebas/index.md`](docs/fase7-seguridad,pruebas/) | Seguridad, hardening y pruebas |
-| Fase 8 | [`docs/fase8-observabilidad,Logs/index.md`](docs/fase8-observabilidad,Logs/) | Observabilidad, métricas, logs y alertas |
-| Fase 9 | [`docs/fase9-backups/index.md`](docs/fase9-backups/) | Backups y recuperación |
-| Fase 10 | [`docs/fase10-gitops,ci,cd/index.md`](docs/fase10-gitops,ci,cd/) | GitOps, integración y despliegue continuo |
-| Fase 11 | [`docs/fase11-legal,documentacion/index.md`](docs/fase11-legal,documentacion/) | Documentación final, RGPD y presentación |
+| Fase 1 | [`docs/fase1-planificacion,git,analisis`](docs/01-planificacion,git,analisis) | Planificación, análisis inicial, Git y decisiones base |
+| Fase 2 | [`docs/fase2-infraestructuraaws`](docs/02-infraestructuraaws) | Infraestructura en AWS, red, acceso y seguridad |
+| Fase 3 | [`docs/fase3-configuracioncluster`](docs/03-configuracioncluster) | Configuración del clúster Kubernetes y servicios base |
+| Fase 4 | [`docs/fase4-coredatos`](docs/04-coredatos/) | Core de datos, persistencia y base de datos |
+| Fase 5 | [`docs/fase5-api,automatizacion,planes`](docs/05-api,automatizacion,planes/) | API, automatización y gestión de planes |
+| Fase 6 | [`docs/fase6-frontend`](docs/06-frontend/) | Paneles de administración y cliente |
+| Fase 7 | [`docs/fase7-seguridad,pruebas`](docs/07-seguridad,pruebas/) | Seguridad, hardening y pruebas |
+| Fase 8 | [`docs/fase8-observabilidad,logs`](docs/08-observabilidad,logs/) | Observabilidad, métricas, logs y alertas |
+| Fase 9 | [`docs/fase10-gitops,ci,cd/index.md`](docs/09-gitops,ci,cd/) | GitOps, integración y despliegue continuo |
+| Fase 10 | [`docs/fase11-legal,documentacion/index.md`](docs/10-legal,documentacion/) | Documentación final, RGPD y presentación |
 | Manuales | [`docs/manuales/`](docs/manuales/) | Guías de instalación, uso y administración |
 | Sprint Planning | [`docs/sprint-planning_review/`](docs/sprint-planning_review/) | Revisiones de sprint y planificación iterativa |
 
@@ -59,7 +58,3 @@ Este README está planteado como punto de entrada al proyecto. A medida que se c
 La documentación está organizada por fases para que el proyecto se pueda seguir con una lógica clara, desde la planificación inicial hasta la entrega final. Esto nos permite separar cada bloque de trabajo, mantener mejor el contenido y preparar un índice real que facilite la navegación cuando todos los documentos estén terminados.
 
 El objetivo no es solo que el proyecto funcione, sino que también se entienda. Por eso el repositorio está planteado como una base técnica ordenada, pensada para consultar decisiones, revisar configuraciones y seguir la evolución completa del trabajo.
-
-## Agradecimiento
-
-Al inicio del proyecto contamos con la ayuda de **Erik Garcia**, cuya participación fue importante para dar forma a las primeras ideas y orientar el planteamiento inicial. Más adelante tuvo que dejar el proyecto al incorporarse a sus prácticas, pero su aportación en esa primera etapa merece quedar reconocida aquí.

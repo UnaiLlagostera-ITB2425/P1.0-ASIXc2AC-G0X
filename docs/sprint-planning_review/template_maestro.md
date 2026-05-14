@@ -1,4 +1,4 @@
-# 📦 Creación YAML Template Maestro
+# Creación YAML Template Maestro
 
 ## 1. Contexto y justificación
 
