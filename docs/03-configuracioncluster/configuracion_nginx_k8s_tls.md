@@ -594,8 +594,6 @@ curl -v https://meu-project.me/ 2>&1 | grep -E "subject|issuer|< HTTP|SSL connec
 | HTTP redirect | `curl -I http://meu-project.me/` | `301 Moved Permanently` |
 | HTTPS respuesta | `curl -I https://meu-project.me/` | `200 OK` |
 
-> 📸 **[CAPTURA SUGERIDA]** Navegador mostrando `https://meu-project.me/` con el candado verde activado y, al hacer clic en él, los detalles del certificado TLS: emisor `Let's Encrypt`, dominio `meu-project.me` y fecha de expiración.
-
 ---
 
 ## 8. Recuperación de credenciales
