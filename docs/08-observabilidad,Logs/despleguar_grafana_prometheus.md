@@ -1,5 +1,4 @@
 # Monitoreo: Despliegue de Prometheus + Grafana
-
 ## Objetivo
 Desplegar Prometheus y Grafana en el clúster K3s para recolectar métricas de nodos, pods y servicios, y visualizarlas en un dashboard de consumo comercial. El despliegue se realizó de forma incremental: primero Grafana para validar la capa visual, y después Prometheus como recolector de métricas.
 
@@ -96,7 +95,7 @@ kubectl get certificate -n monitoring
 ## Prometheus
 Prometheus se desplegó mediante kube-prometheus-stack con una configuración mínima, ajustada a los recursos del clúster y con almacenamiento persistente sobre local-path para evitar dependencias del NFS compartido. Se redujo la configuración al núcleo necesario para mantener el stack estable, desactivando componentes no esenciales del operador y priorizando la recogida de métricas básicas del clúster para alimentar el dashboard de consumo comercial.
 
-> **Estado:** Pendiente de integración. Se desplegará una vez resuelto el acceso HTTPS saliente del nodo `k8s-submaster`.
+> **Estado:** Desplegado y operativo dentro de `kube-prometheus-stack`.
 
 ### Values preparados
 Ubicación: `~/saas-hosting/k8s/monitoring/kube-prometheus-values.yaml`
@@ -132,7 +131,7 @@ kubeEtcd:
   enabled: false
 ```
 
-### Instalación (pendiente)
+### Instalación
 ```bash
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm repo update
