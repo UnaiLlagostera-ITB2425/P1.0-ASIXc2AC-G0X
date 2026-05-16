@@ -77,13 +77,27 @@ número de clientes sin crear un usuario MariaDB por cada uno.
     sudo systemctl restart nslcd
     ```
 
-- 4. Creación de estructura LDAP y usuario de prueba
+- 4. Creación de estructura LDAP y usuarios
     Archivo `~/ldap/base-user.ldif`:
 
     ```ldif
     dn: ou=People,dc=meu,dc=local
     objectClass: organizationalUnit
     ou: People
+
+    dn: uid=admin,ou=People,dc=meu,dc=local
+    objectClass: inetOrgPerson
+    objectClass: posixAccount
+    objectClass: shadowAccount
+    cn: Admin User
+    sn: User
+    uid: admin
+    uidNumber: 10000
+    gidNumber: 10000
+    homeDirectory: /home/admin
+    loginShell: /bin/bash
+    mail: admin@meu-project.me
+    userPassword: <password>
 
     dn: uid=demo,ou=People,dc=meu,dc=local
     objectClass: inetOrgPerson
@@ -103,6 +117,9 @@ número de clientes sin crear un usuario MariaDB por cada uno.
     ```bash
     ldapadd -x -D "cn=admin,dc=meu,dc=local" -W -f ~/ldap/base-user.ldif
     ```
+
+    > El usuario `admin` es el que utiliza `meu-api` para autenticar el acceso al panel.
+    > El usuario `demo` se usa para pruebas y acceso MariaDB vía PAM.
 
 - 5. Habilitación del plugin PAM en MariaDB
     ```sql
@@ -172,7 +189,7 @@ SHOW TABLES;
 ## Estado
 - `slapd` activo y sirviendo en `ldap:///` y `ldapi:///`
 - Base DN `dc=meu,dc=local` creada y verificada con `slapcat`
-- `ou=People` creada y usuario `demo` importado via LDIF
+- `ou=People` creada, usuarios `admin` y `demo` importados via LDIF
 - `nslcd` corregido y resolviendo usuarios: `getent passwd demo` OK
 - Plugin PAM instalado en MariaDB: `ACTIVE`
 - Usuarios proxy `ldap_client` y `ldap_admin` creados con permisos correctos
