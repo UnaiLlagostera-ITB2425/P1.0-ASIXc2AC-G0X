@@ -309,3 +309,31 @@ La validación realizada confirmó que el pod queda en `Ready`, que el volumen s
 ## 11. Conclusión
 
 La solución final transforma un proceso manual, repetitivo y propenso a fallo en una plataforma de aprovisionamiento automatizada, formal y escalable. La combinación de FastAPI, Pydantic, Helm, Kubernetes, ingress-nginx y cert-manager permite ofrecer clientes SaaS completos de forma consistente y con una carga operativa muy inferior a la del modelo original.
+
+## 12. Troubleshooting y validación operativa
+
+Durante el desarrollo de la solución se identificaron varios incidentes funcionales que afectaban a distintas capas del sistema: importación de módulos en la API, resolución de rutas del chart de Helm, divergencia de puertos entre Service y Deployment, emisión de certificados TLS y discrepancias entre el backend y la exposición pública del servicio. La resolución de estos incidentes permitió validar el comportamiento extremo a extremo de la plataforma y consolidar una configuración final estable.
+
+### 12.1. Errores de importación en la API
+
+El primer bloque de incidencias estuvo relacionado con la puesta en marcha de la API FastAPI. Inicialmente se intentó ejecutar el servicio con una implementación que importaba Flask, lo que provocó un `ModuleNotFoundError` al no estar instalada esa dependencia en el entorno virtual. Posteriormente, al migrar a FastAPI, surgió un segundo problema de importación por estructura de paquetes, ya que `uvicorn` no encontraba el módulo `k8s` en la ruta esperada. La corrección consistió en homogeneizar la estructura del proyecto, ubicar los módulos bajo `app/` y utilizar imports absolutos del tipo `from app.k8s import ...`, además de asegurar que el entorno virtual activado contenía las dependencias necesarias.
+
+### 12.2. Ruta del chart de Helm
+
+Una vez resuelta la API, se detectó un fallo al ejecutar Helm desde Python: el chart se estaba invocando como `./chart`, pero el directorio real del repositorio se encontraba en `/home/meu_master/saas-hosting/helm/saas-app`. Este problema generaba el error `path "./chart" not found`. La corrección fue sustituir la ruta relativa por la ruta absoluta real del chart, garantizando así que `helm upgrade --install` siempre pudiera localizar `Chart.yaml` con independencia del directorio de ejecución de la API.
+
+### 12.3. Desalineación de puertos
+
+El incidente más relevante a nivel de red ocurrió por una desalineación entre el puerto del contenedor, el Service y las probes del Deployment. El contenedor `php-apache` y la aplicación web interna escuchaban en `80`, pero el Service inicialmente traducía el tráfico hacia `8080`, lo que provocaba `502 Bad Gateway` desde ingress-nginx. La resolución fue uniformar todos los componentes en el puerto `80`: `containerPort: 80`, `port: 80`, `targetPort: 80`, así como `livenessProbe` y `readinessProbe` también sobre `80`. Esta corrección eliminó el error de gateway y permitió que el pod alcanzara el estado `Ready`.
+
+### 12.4. Persistencia y PVC duplicado
+
+En la primera iteración del chart existía un riesgo de duplicación de recursos de almacenamiento: el PVC podía ser creado por la API y también por Helm. Para evitar conflictos de ownership, se decidió que la API fuera la única responsable de crear el PersistentVolumeClaim, mientras que el chart solo haría referencia a ese recurso mediante `storage.existingClaim`. El archivo `pvc.yaml` del chart quedó condicionado o directamente eliminado según la versión de despliegue, evitando así que Kubernetes intentara gestionar dos recursos con la misma finalidad.
+
+### 12.5. Problemas de TLS y cert-manager
+
+En la capa de publicación externa, el certificado TLS emitido por cert-manager pasó por un estado intermedio inconsistente. Aunque el `Challenge` HTTP-01 llegó a validarse correctamente, el `Certificate` quedó temporalmente en `Ready: False` debido a un `Order` erróneo que no finalizó de manera limpia. La solución fue eliminar los recursos ACME atascados —`Certificate`, `CertificateRequest`, `Order` y `Challenge`— para forzar una nueva emisión desde cero. Tras esta limpieza, el certificado pasó a `Ready: True` y el dominio comenzó a servir HTTPS correctamente.
+
+### 12.6. Verificación final del sistema
+
+La validación final se realizó en tres niveles. Primero, desde dentro del pod se comprobó que la aplicación respondía correctamente en `127.0.0.1`, y que el contenido inicial del cliente se había escrito dentro del volumen montado. Segundo, a nivel de Kubernetes, se verificó que el Service devolvía endpoints correctos en `80` y que el Deployment estaba estable en estado `Running` y `Ready`. Tercero, desde el navegador, se confirmó el acceso al dominio mediante HTTPS con certificado válido y contenido servido correctamente. Esta cadena de validación permitió confirmar que la arquitectura completa era funcional y coherente.
