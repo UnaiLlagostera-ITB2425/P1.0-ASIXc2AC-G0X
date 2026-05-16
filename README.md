@@ -11,6 +11,8 @@ P1.0 MEU es nuestro proyecto final de ASIXc. La propuesta consiste en construir 
 
 Más que presentar servicios sueltos, el objetivo es reunir en un mismo proyecto la infraestructura cloud, la persistencia de datos, la automatización del aprovisionamiento, la seguridad, la observabilidad y la documentación. La idea es que el repositorio sirva tanto como base técnica del sistema como guía clara del trabajo realizado durante el desarrollo.
 
+---
+
 ## Qué queremos conseguir
 
 - Diseñar una infraestructura cloud orientada a hosting web multicliente.
@@ -21,40 +23,132 @@ Más que presentar servicios sueltos, el objetivo es reunir en un mismo proyecto
 - Aplicar medidas reales de seguridad, monitorización y copias de respaldo.
 - Dejar una documentación clara, útil y fácil de seguir.
 
-## Indice
+---
 
-Este README está planteado como punto de entrada al proyecto. A medida que se complete la documentación de cada fase, los siguientes apartados servirán como índice navegable del repositorio.
+## Índice
 
-| Bloque | Ruta | Contenido |
-|---|---|---|
-| Fase 1 | [`docs/fase1-planificacion,git,analisis`](docs/01-planificacion,git,analisis) | Planificación, análisis inicial, Git y decisiones base |
-| Fase 2 | [`docs/fase2-infraestructuraaws`](docs/02-infraestructuraaws) | Infraestructura en AWS, red, acceso y seguridad |
-| Fase 3 | [`docs/fase3-configuracioncluster`](docs/03-configuracioncluster) | Configuración del clúster Kubernetes y servicios base |
-| Fase 4 | [`docs/fase4-coredatos`](docs/04-coredatos/) | Core de datos, persistencia y base de datos |
-| Fase 5 | [`docs/fase5-api,automatizacion,planes`](docs/05-api,automatizacion,planes/) | API, automatización y gestión de planes |
-| Fase 6 | [`docs/fase6-frontend`](docs/06-frontend/) | Paneles de administración y cliente |
-| Fase 7 | [`docs/fase7-seguridad,pruebas`](docs/07-seguridad,pruebas/) | Seguridad, hardening y pruebas |
-| Fase 8 | [`docs/fase8-observabilidad,logs`](docs/08-observabilidad,logs/) | Observabilidad, métricas, logs y alertas |
-| Fase 9 | [`docs/fase10-gitops,ci,cd`](docs/09-gitops,ci,cd/) | GitOps, integración y despliegue continuo |
-| Fase 10 | [`docs/fase11-legal,documentacion`](docs/10-legal,documentacion/) | Documentación final, RGPD y presentación |
-| Manuales | [`docs/manuales/`](docs/manuales/) | Guías de instalación, uso y administración |
-| Sprint Planning | [`docs/sprint-planning_review/`](docs/sprint-planning_review/) | Revisiones de sprint y planificación iterativa |
+Este README es el punto de entrada al proyecto. Cada fase tiene su propio directorio con la documentación correspondiente. Los links apuntan directamente a cada documento.
+
+### Fase 1 — Planificación, Git y análisis
+> Decisiones iniciales, estudio del stack tecnológico, análisis de alternativas y flujo de trabajo con Git.
+
+| Documento | Descripción |
+|---|---|
+| [analisis_competencia.md](docs/01-planificacion,git,analisis/analisis_competencia.md) | Estudio de plataformas de hosting existentes en el mercado |
+| [analisis_orquestador.md](docs/01-planificacion,git,analisis/analisis_orquestador.md) | Comparativa y elección del orquestador de contenedores |
+| [analisis_solucion_stack.md](docs/01-planificacion,git,analisis/analisis_solucion_stack.md) | Justificación del stack tecnológico elegido |
+| [analisis_topologia_solucion.md](docs/01-planificacion,git,analisis/analisis_topologia_solucion.md) | Diseño de la topología de red y arquitectura general |
+| [eleccion_almacenamiento.md](docs/01-planificacion,git,analisis/eleccion_almacenamiento.md) | Decisión sobre la solución de almacenamiento persistente |
+| [estudio_aws.md](docs/01-planificacion,git,analisis/estudio_aws.md) | Análisis de servicios AWS utilizados en el proyecto |
+| [github_workflow.md](docs/01-planificacion,git,analisis/github_workflow.md) | Flujo de trabajo en Git, ramas y convenciones |
+| [justificacion_runtime.md](docs/01-planificacion,git,analisis/justificacion_runtime.md) | Justificación del runtime de contenedores seleccionado |
+
+### Fase 2 — Infraestructura AWS
+> Despliegue de la infraestructura cloud: instancias, red, accesos y seguridad perimetral.
+
+| Documento | Descripción |
+|---|---|
+| [IAM.md](docs/02-infraestructuraaws/IAM.md) | Configuración de usuarios, roles y políticas IAM |
+| [infraestructura_aws_instancias.md](docs/02-infraestructuraaws/infraestructura_aws_instancias.md) | Creación y configuración de instancias EC2 y VPC |
+
+### Fase 3 — Configuración del clúster
+> Puesta en marcha del clúster Kubernetes K3s, Ingress, TLS y gestión de dominios.
+
+| Documento | Descripción |
+|---|---|
+| [configuracion_nginx_k8s_tls.md](docs/03-configuracioncluster/configuracion_nginx_k8s_tls.md) | Configuración de Nginx Ingress con TLS y Cert-Manager |
+| [configurar-dominio.md](docs/03-configuracioncluster/configurar-dominio.md) | Asociación de dominios al clúster y gestión DNS |
+
+### Fase 4 — Core de datos
+> Base de datos MariaDB en clúster, persistencia y administración.
+
+| Documento | Descripción |
+|---|---|
+| [configuracion_instancia_BD.md](docs/04-coredatos/configuracion_instancia_BD.md) | Configuración de la instancia de base de datos |
+| [despliegue_cluster_mariadb.md](docs/04-coredatos/despliegue_cluster_mariadb.md) | Despliegue del clúster MariaDB en Kubernetes |
+| [despliegue_phpMyAdmin.md](docs/04-coredatos/despliegue_phpMyAdmin.md) | Despliegue y configuración de phpMyAdmin |
+| [levantar_instancia_BD.md](docs/04-coredatos/levantar_instancia_BD.md) | Procedimiento para iniciar la instancia de base de datos |
+
+### Fase 5 — API, automatización y planes
+> Backend de la plataforma, lógica de aprovisionamiento y gestión de clientes.
+
+| Documento | Descripción |
+|---|---|
+| [desarrollo_api.md](docs/05-api,automatizacion,planes/desarrollo_api.md) | Diseño y desarrollo de la API REST del sistema |
+| [dockerfile_base.md](docs/05-api,automatizacion,planes/dockerfile_base.md) | Imagen Docker base para los sitios alojados |
+| [logica_bbdd.md](docs/05-api,automatizacion,planes/logica_bbdd.md) | Lógica de gestión de bases de datos por cliente |
+| [logica_kubectl.md](docs/05-api,automatizacion,planes/logica_kubectl.md) | Automatización de recursos Kubernetes vía API |
+| [template_maestro.md](docs/05-api,automatizacion,planes/template_maestro.md) | Template maestro para el aprovisionamiento de nuevos sitios |
+
+### Fase 6 — Frontend
+> Paneles de administración, panel de cliente y definición de planes de hosting.
+
+| Documento | Descripción |
+|---|---|
+| [frontend.md](docs/06-frontend/frontend.md) | Arquitectura del frontend y integración con LDAP |
+| [planes_hosting.md](docs/06-frontend/planes_hosting.md) | Definición y configuración de los planes de hosting |
+
+### Fase 7 — Seguridad y pruebas
+> Hardening, autenticación centralizada, seguridad de contenedores y QA.
+
+| Documento | Descripción |
+|---|---|
+| [configuracion_ldap.md](docs/07-seguridad,pruebas/configuracion_ldap.md) | Configuración del servidor LDAP y usuarios admin |
+| [configuracion_seguridad_contenedores.md](docs/07-seguridad,pruebas/configuracion_seguridad_contenedores.md) | Hardening y políticas de seguridad en contenedores |
+| [contextualizacion_pruebas_qa.md](docs/07-seguridad,pruebas/contextualizacion_pruebas_qa.md) | Planificación y contexto de las pruebas de calidad |
+| [securizacion_servicios_web.md](docs/07-seguridad,pruebas/securizacion_servicios_web.md) | Securización de los servicios web expuestos |
+
+### Fase 8 — Observabilidad y logs
+> Métricas, dashboards, agregación de logs y alertas.
+
+| Documento | Descripción |
+|---|---|
+| [despleguar_grafana_prometheus.md](docs/08-observabilidad,Logs/despleguar_grafana_prometheus.md) | Despliegue y configuración de Grafana y Prometheus |
+| [despliegue_loki_alloy.md](docs/08-observabilidad,Logs/despliegue_loki_alloy.md) | Despliegue de Loki y Alloy para agregación de logs |
+
+### Fase 10 — Legal y documentación final
+> Cumplimiento normativo, sostenibilidad y documentación de cierre del proyecto.
+
+| Documento | Descripción |
+|---|---|
+| [cumplimiento_rgpd.md](docs/10-legal,documentacion/cumplimiento_rgpd.md) | Análisis de cumplimiento con el RGPD |
+| [medioambiente_eco.md](docs/10-legal,documentacion/medioambiente_eco.md) | Impacto medioambiental y criterios de sostenibilidad |
+| [riesgos_laborales.md](docs/10-legal,documentacion/riesgos_laborales.md) | Evaluación de riesgos laborales del proyecto |
+
+### Manuales
+> Guías de instalación, uso y administración del sistema.
+
+| Documento | Descripción |
+|---|---|
+| [manual_admin.md](docs/manuales/manual_admin.md) | Manual de administración del sistema |
+| [manual_user.md](docs/manuales/manual_user.md) | Manual de uso para el cliente final |
+
+### Sprint Planning y Reviews
+> Planificación iterativa y revisiones de cada sprint del proyecto.
+
+| Documento | Descripción |
+|---|---|
+| [sprint_planning_review.md](docs/sprint-planning_review/sprint_planning_review.md) | Registro de planificaciones y revisiones de sprint |
+
+---
 
 ## Tecnologías principales
 
 | Área | Tecnologías |
 |---|---|
-| Cloud | AWS, VPC, EC2, S3, Security Groups |
-| Orquestación | Kubernetes K3s, Helm, Nginx Ingress, Cert-Manager |
+| Cloud | AWS · VPC · EC2 · S3 · Security Groups |
+| Orquestación | Kubernetes K3s · Helm · Nginx Ingress · Cert-Manager |
 | Contenedores | Docker |
-| Datos | MariaDB y almacenamiento persistente |
-| Seguridad | ModSecurity, Fail2Ban, RBAC, Trivy, Sealed Secrets |
-| Observabilidad | Prometheus, Grafana, Loki o ELK, Alertmanager |
-| Automatización | API backend, GitHub Actions, ArgoCD |
-| Backups | Velero y almacenamiento en S3 |
+| Datos | MariaDB · almacenamiento persistente |
+| Seguridad | ModSecurity · Fail2Ban · RBAC · Trivy · Sealed Secrets |
+| Observabilidad | Prometheus · Grafana · Loki · Alloy · Alertmanager |
+| Automatización | API backend · GitHub Actions · ArgoCD |
+| Backups | Velero · S3 |
+
+---
 
 ## Enfoque del repositorio
 
-La documentación está organizada por fases para que el proyecto se pueda seguir con una lógica clara, desde la planificación inicial hasta la entrega final. Esto nos permite separar cada bloque de trabajo, mantener mejor el contenido y preparar un índice real que facilite la navegación cuando todos los documentos estén terminados.
+La documentación está organizada por fases para que el proyecto se pueda seguir con una lógica clara, desde la planificación inicial hasta la entrega final. Esto permite separar cada bloque de trabajo, mantener el contenido ordenado y navegar el repositorio de forma directa sin necesidad de explorar carpetas manualmente.
 
-El objetivo no es solo que el proyecto funcione, sino que también se entienda. Por eso el repositorio está planteado como una base técnica ordenada, pensada para consultar decisiones, revisar configuraciones y seguir la evolución completa del trabajo.
+El objetivo no es solo que el proyecto funcione, sino que también se entienda: cada decisión técnica está documentada, cada servicio desplegado tiene su guía, y el conjunto refleja un trabajo riguroso tanto en infraestructura como en proceso.
