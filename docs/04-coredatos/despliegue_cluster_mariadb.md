@@ -1,7 +1,7 @@
 # Desplegar Clúster MariaDB en Kubernetes
 
 ## 1. Descripción
-Despliegue de MariaDB como recurso gestionado dentro del clúster K3s mediante un **StatefulSet** y un **PVC**, para garantizar estabilidad de identidad de pod y persistencia de datos. Esta tarea se ejecuta desde el nodo Master y se integra con la base de datos centralizada desplegada en la EC2 DDBB de Manuel (`10.2.2.191`).
+Despliegue de MariaDB como recurso gestionado dentro del clúster K8s mediante un **StatefulSet** y un **PVC**, para garantizar estabilidad de identidad de pod y persistencia de datos. Esta tarea se ejecuta desde el nodo Master y se integra con la base de datos centralizada desplegada en la EC2 DDBB de Manuel (`10.2.2.191`).
 
 ---
 
@@ -19,7 +19,7 @@ Despliegue de MariaDB como recurso gestionado dentro del clúster K3s mediante u
 ---
 
 ## 3. Decisiones aplicadas
-- El StatefulSet se despliega en el clúster K3s del Master (Cuenta A).
+- El StatefulSet se despliega en el clúster K8s del Master (Cuenta A).
 - La persistencia real de datos **no** recae sobre el PVC de Kubernetes, sino sobre el **EBS gp3 de la EC2 DDBB**.
 - El PVC actúa como referencia lógica dentro del clúster para mantener compatibilidad con el patrón StatefulSet estándar de Kubernetes.
 - El acceso a MariaDB desde los pods se realiza a través de un **Service + Endpoints externo** apuntando a `10.2.2.154:3306` por VPC Peering.
@@ -258,7 +258,7 @@ Creación de los artefactos de configuración y credenciales para la base de dat
 
 La tarea se divide en dos partes:
 - **Manuel** — configura el servidor MariaDB y prepara los manifiestos como artefactos de integración.
-- **Erick** — aplica los manifiestos en el clúster K3s.
+- **Erick** — aplica los manifiestos en el clúster K8s.
 
 ---
 
