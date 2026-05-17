@@ -1,27 +1,59 @@
-## Soporte a Planes de Hosting (dinámico)
-
-### Descripción
-
-La API permite asignar **recursos computacionales (CPU/RAM) dinámicamente** según el plan de hosting elegido por el cliente. El plan se envía en el JSON de la petición `POST /provision` y la API lo pasa al script `new-client.sh`, que inyecta los límites en el Deployment de Kubernetes.
-
-Esta funcionalidad reemplaza los recursos fijos (`resources: {}`) por valores configurables por plan, sin necesidad de modificar el template YAML manualmente.
-
+# Planes de Hosting — MEU
+ 
+## Estado actual
+ 
+La plataforma MEU implementa un sistema de aprovisionamiento automático de recursos por plan. Cuando se crea un nuevo cliente mediante la API, se le asignan límites de CPU y RAM dentro del clúster Kubernetes según el plan contratado. La base de datos MariaDB y el dominio con certificado HTTPS se configuran automáticamente en el mismo proceso.
+ 
 ### Planes disponibles
-
-Actualmente hay tres niveles, ajustados para entornos con recursos limitados (máquinas pequeñas):
-
-| Plan       | CPU request | CPU limit | RAM request | RAM limit | Disco (PVC) * |
-|------------|-------------|-----------|-------------|-----------|---------------|
-| **basic**  | `5m`        | `25m`     | `32Mi`      | `64Mi`    | No usado      |
-| **pro**    | `10m`       | `50m`     | `64Mi`      | `128Mi`   | No usado      |
-| **enterprise** | `20m`  | `100m`    | `128Mi`     | `256Mi`   | No usado      |
-
-> *La persistencia de datos se gestiona exclusivamente en la base de datos MariaDB externa. Por tanto, no se utilizan volúmenes locales (ni PVC ni hostPath). Los pods son **stateless** por diseño.
-
-### Modo de uso
-
-En la petición de creación de cliente, incluir el campo `"plan"`:
-
+ 
+| Plan | CPU (request / limit) | RAM (request / limit) |
+|---|---|---|
+| **Basic** | 5m / 25m | 32Mi / 64Mi |
+| **Pro** | 10m / 50m | 64Mi / 128Mi |
+| **Enterprise** | 20m / 100m | 128Mi / 256Mi |
+ 
+> Los valores están ajustados para el entorno actual de la plataforma. Se pueden modificar en `new-client.sh` sin tocar el código de la API.
+ 
+### Qué incluye el aprovisionamiento automático
+ 
+Al crear un cliente con su plan correspondiente, la API realiza automáticamente:
+ 
+- Creación del namespace dedicado en Kubernetes.
+- Despliegue del pod del sitio web con los límites de recursos del plan.
+- Creación de la base de datos MariaDB asociada al cliente.
+- Configuración del dominio y emisión del certificado HTTPS mediante Cert-Manager y Let's Encrypt.
+### Qué NO está implementado aún
+ 
+Los siguientes elementos están definidos como objetivo pero no están operativos en la versión actual:
+ 
+- **Almacenamiento persistente por plan (PVC):** Los pods son stateless. La persistencia de datos se gestiona exclusivamente en la base de datos MariaDB externa. No se utilizan volúmenes locales por diseño del entorno actual.
+- **Límites de almacenamiento web diferenciados por plan:** No hay cuotas de disco configuradas. Es una mejora pendiente.
+- **Copias de seguridad automáticas:** No implementadas. Objetivo futuro con Velero + S3.
+- **Panel de cliente con autogestión:** No implementado. Las gestiones las realiza el equipo de administración bajo petición.
+- **Número de dominios por plan:** La diferenciación por plan no está implementada a nivel de restricción automática.
+---
+ 
+## Objetivo de evolución de los planes
+ 
+El objetivo a medio plazo es que cada plan ofrezca las siguientes capacidades, una vez que la infraestructura lo permita:
+ 
+| Característica | **Basic** | **Pro** | **Enterprise** |
+|---|---|---|---|
+| CPU / RAM | 25m / 64Mi | 50m / 128Mi | 100m / 256Mi |
+| Almacenamiento web | 1 GB | 5 GB | 20 GB |
+| Bases de datos | 1 · 256 MB | 2 · 1 GB | 5 · 5 GB |
+| Dominios | 1 | 2 | 5 |
+| Certificado HTTPS | ✓ | ✓ | ✓ |
+| Copias de seguridad | Semanal | Diaria | Diaria · 30 días |
+| Panel de autogestión | ✓ | ✓ | ✓ |
+| Soporte | 48 h | 24 h | 8 h |
+ 
+---
+ 
+## Uso técnico
+ 
+Para provisionar un cliente con un plan concreto:
+ 
 ```bash
 curl -X POST https://api.meu-project.me/provision \
   -H "Content-Type: application/json" \
@@ -32,46 +64,23 @@ curl -X POST https://api.meu-project.me/provision \
     "plan": "enterprise"
   }'
 ```
-
-Si no se envía el campo plan, se usa "basic" por defecto.
-
-Verificación de recursos asignados
-Para comprobar que el pod tiene los límites correspondientes al plan:
-
+ 
+Si no se envía el campo `plan`, se aplica `basic` por defecto.
+ 
+Para verificar los recursos asignados al pod:
+ 
 ```bash
 kubectl describe pod -n cliente-acme | grep -A5 "Limits\|Requests"
-Salida esperada para plan enterprise:
 ```
-
-```text
-Limits:
-  cpu:     100m
-  memory:  256Mi
-Requests:
-  cpu:     20m
-  memory:  128Mi
-Personalización de los valores de los planes
-Si se necesitan ajustes (por ejemplo, máquinas más potentes o recursos diferentes), editar el script new-client.sh y modificar las variables dentro del case:
-```
-
+ 
+Para modificar los valores de un plan, editar el `case` correspondiente en `new-client.sh`:
+ 
 ```bash
 nano ~/saas-hosting/scripts/new-client.sh
-Ejemplo para cambiar el plan pro a CPU=200m, RAM=512Mi:
 ```
-
+ 
+Tras cualquier cambio, reiniciar la API:
+ 
 ```bash
-  pro)
-    CPU_REQ="100m"; CPU_LIM="200m"; MEM_REQ="256Mi"; MEM_LIM="512Mi"
-    ;;
+sudo systemctl restart saas-api
 ```
-
-Luego reiniciar la API: sudo systemctl restart saas-api.
-
-Notas de implementación
-La lógica de selección de recursos se implementa en new-client.sh mediante un case sobre la variable $PLAN.
-
-El template YAML (cliente-template.yaml) contiene las variables __CPU_REQ__, __CPU_LIM__, __MEM_REQ__, __MEM_LIM__ que son sustituidas por sed en tiempo de ejecución.
-
-No se requiere modificar el main.py para añadir nuevos planes más allá de cambiar los valores en el script.
-
-El flujo completo (incluyendo la creación de la base de datos) sigue siendo el mismo, solo se han añadido los límites de recursos al pod.
