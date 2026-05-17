@@ -114,6 +114,32 @@ Aplicaciones basadas en sesiones, como phpMyAdmin y muchas apps PHP, dependen de
 
 Esta es una medida de seguridad importante porque una mala semántica de proxy puede degradar el modelo de sesión aunque el certificado sea válido. El endurecimiento de la cadena `cliente -> Ingress -> backend` es, por tanto, tanto funcional como criptográfico.  
 
+### 5.5 Protección de rutas con autenticación por cookie (meu-dashboard)
+
+El panel de administración `/dashboard` era accesible directamente desde cualquier navegador sin ningún tipo de verificación, ya que el Ingress enrutaba la ruta al pod `meu-dashboard` sin comprobar si el usuario había pasado por el login. Cualquiera que conociera la URL podía acceder al panel sin autenticarse.
+
+La solución implementada añade una capa de verificación entre el Ingress y el dashboard sin modificar la arquitectura existente ni añadir componentes externos. El mecanismo se basa en tres piezas:
+
+**Cookie firmada en `meu-api`:** Tras un login LDAP exitoso, la API emite una cookie `meu_session` firmada con HMAC-SHA256. La firma incluye el nombre de usuario y un timestamp, lo que permite detectar cualquier manipulación del valor. La cookie se configura como `httponly`, `secure` y `samesite=strict`, impidiendo su acceso desde JavaScript y su envío en peticiones cross-site.
+
+**Secret de Kubernetes para la clave de firma:** La clave con la que se firma la cookie se almacena en un Secret de Kubernetes (`meu-session-secret`) y se inyecta en el pod como variable de entorno. Esto garantiza que la clave persiste aunque el pod muera y se reinicie, y que nunca está expuesta en el código fuente ni en la imagen.
+
+**`auth_request` en el nginx del dashboard:** El ConfigMap `meu-dashboard-nginx-conf` configura nginx para que antes de servir cualquier contenido de `/dashboard` haga una subrequest interna a `/auth/verify` en `meu-api`. Si la cookie no existe o la firma no es válida, `meu-api` devuelve `401` y nginx redirige automáticamente al login en `meu-project.me`. Si la cookie es válida, la petición se sirve con normalidad.
+
+**Persistencia del código:** El `main.py` de `meu-api` se almacena en un ConfigMap (`meu-api-code`) montado como volumen en el Deployment. Esto garantiza que cualquier reinicio del pod carga siempre el código correcto independientemente del contenido de la imagen en el registry.
+
+Verificación del comportamiento esperado:
+
+```bash
+# Sin cookie — debe redirigir al login
+curl -sk -o /dev/null -w "%{http_code}" https://meu-project.me/dashboard
+# Resultado esperado: 302
+
+# Sin cookie — verify debe rechazar
+curl -sk -o /dev/null -w "%{http_code}" https://meu-project.me/auth/verify
+# Resultado esperado: 401
+```
+
 ---
 
 ## 6. Seguridad de red con Calico CNI
