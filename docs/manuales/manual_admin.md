@@ -47,7 +47,7 @@ ingress-nginx-controller (DaemonSet en k8s-submaster, puertos 80/443)
     └── <slug>.meu-project.me     → <slug>-service:80    (sitio de cliente)
 ```
  
-### Stack tecnológico real
+### Stack tecnológico
  
 | Capa | Tecnología | Versión |
 |---|---|---|
